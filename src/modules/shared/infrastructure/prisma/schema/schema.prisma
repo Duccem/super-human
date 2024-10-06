@@ -3,19 +3,27 @@
 
 generator client {
     provider = "prisma-client-js"
-    previewFeatures = ["prismaSchemaFolder"]
+    previewFeatures = ["prismaSchemaFolder", "multiSchema"]
 }
 
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
+    schemas = ["public", "human"]
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
+model User {
+    id String @id @default(uuid())
+    externalId String @unique
+    emailAddress String @unique
+
+    firstName String
+    lastName String
+
+    imageUrl String?
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([name])
+    @@schema("human")
 }
