@@ -18,7 +18,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <ClerkProvider>
       <html lang="en" className={nunito.className}>
-        <body>
+        <body suppressHydrationWarning={true}>
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </body>
       </html>

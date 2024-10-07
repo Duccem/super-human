@@ -1,13 +1,10 @@
-import Link from "next/link";
+import LinkAccountButton from "../../components/account/link-account-button";
 
 
 export default async function Home() {
   return (
-    <div>
-      <h1>Welcome to my blog</h1>
-      <Link href="/new-post">
-        Create a new post
-      </Link>
+    <div className="flex justify-center items-center h-screen">
+      <LinkAccountButton />
     </div>
   )
 }
