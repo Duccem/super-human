@@ -18,7 +18,7 @@ export enum FilterType {
 export type Filter = { field: string; value: any; operator: Operator };
 export type Filters = { filters: (Filter | Filters)[]; type: FilterType };
 export type Order = { field: string; order: Direction };
-export type Pagination = { limit: number; offset: number };
+export type Pagination = { limit?: number; offset?: number };
 
 export function isAsc(direction: Direction): boolean {
   return direction === Direction.ASC;
@@ -33,8 +33,8 @@ export interface CriteriaConverter {
 }
 export class Criteria {
   protected filters: Filters;
-  protected order: Order;
-  protected pagination: Pagination;
+  protected order?: Order;
+  protected pagination?: Pagination;
 
   constructor(filters?: Filters, order?: Order, pagination?: Pagination) {
     this.filters = filters || { filters: [], type: FilterType.AND };
@@ -54,10 +54,10 @@ export class Criteria {
     return this.filters;
   }
   getOrder(): Order {
-    return this.order;
+    return this.order!;
   }
   getPagination(): Pagination {
-    return this.pagination;
+    return this.pagination!;
   }
 
   where(filters: Filter[]): Criteria {

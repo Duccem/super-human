@@ -1,6 +1,6 @@
 import { exchangeForAccessToken, getAccountDetails } from '@/modules/shared/infrastructure/aurinko/aurinko';
 import qstashClient from '@/modules/shared/infrastructure/events/QStashClient';
-import { db } from '@/modules/shared/infrastructure/prisma/db';
+import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
 import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 

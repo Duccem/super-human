@@ -1,6 +1,6 @@
 import { SyncResponse } from '@/modules/shared/infrastructure/aurinko/types';
 import qStashClient from '@/modules/shared/infrastructure/events/QStashClient';
-import { db } from '@/modules/shared/infrastructure/prisma/db';
+import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
 import { verifySignatureAppRouter } from '@upstash/qstash/nextjs';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
