@@ -1,11 +1,8 @@
-import { postRouter } from "@/modules/posts/routers/post";
-import {
-  createCallerFactory,
-  createTRPCRouter,
-} from "@/modules/shared/infrastructure/trpc/trpc";
+import { accountRouter } from '@/modules/account/presentation/trpc/router';
+import { createCallerFactory, createTRPCRouter } from '@/modules/shared/infrastructure/trpc/trpc';
 
 export const appRouter = createTRPCRouter({
-  post: postRouter,
+  account: accountRouter,
 });
 
 export type AppRouter = typeof appRouter;
