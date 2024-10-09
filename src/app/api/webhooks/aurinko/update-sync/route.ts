@@ -219,14 +219,9 @@ const saveEmail = async (email: EmailMessage, accountId: string, index: number) 
     });
 
     let threadFolderType = 'sent';
-    for (const threadEmail of threadEmails) {
-      if (threadEmail.emailLabel === 'inbox') {
-        threadFolderType = 'inbox';
-        break; // If any email is in inbox, the whole thread is in inbox
-      } else if (threadEmail.emailLabel === 'draft') {
-        threadFolderType = 'draft'; // Set to draft, but continue checking for inbox
-      }
-    }
+    threadFolderType = threadEmails.some((email) => email.emailLabel === 'draft') ? 'draft' : threadFolderType;
+    threadFolderType = threadEmails.some((email) => email.emailLabel === 'inbox') ? 'inbox' : threadFolderType;
+
     await db.thread.update({
       where: { id: thread.id },
       data: {
