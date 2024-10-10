@@ -4,7 +4,6 @@ import { SaveThread } from '@/modules/thread/application/save-thread';
 import { Email } from '../domain/email';
 import { EmailAttachment } from '../domain/email-attachment';
 import { EmailRepository } from '../domain/email-repository';
-import { EmailSensitivityValue } from '../domain/email-sensitivity';
 import { EmailMessage, EmailService } from '../domain/email-service';
 
 export class SyncEmails {
@@ -35,44 +34,32 @@ export class SyncEmails {
     //recorremos todos los emails para preparar la data
     for (const email of records) {
       // Creamos la dirección de correo desde donde se manda el correo
-      const fromAddress = Email.updateFromEmailAddress(
-        email.from.address,
-        email.from.name!,
-        email.from.raw!,
+      const from = Email.updateFromEmailAddress(email.from.address, email.from.name!, email.from.raw!, accountId);
+
+      const { bcc, cc, replyTo, to } = Email.setEmailAddressesRelated(
+        email.to,
+        email.cc,
+        email.bcc,
+        email.replyTo,
         accountId,
       );
-      // Creamos la entidad de correo
-      const emailEntity = Email.Create(
-        email.id,
-        email.threadId,
-        email.createdTime,
-        email.lastModifiedTime,
-        email.sentAt,
-        email.receivedAt,
-        email.internetMessageId,
-        email.subject,
-        email.sysLabels,
-        email.keywords,
-        email.sysClassifications,
-        email.sensitivity as EmailSensitivityValue,
-        email.meetingMessageMethod!,
-        fromAddress.id.value,
-        email.hasAttachments,
-        email.body!,
-        email.bodySnippet!,
-        email.inReplyTo!,
-        email.references!,
-        email.threadIndex!,
-        email.internetHeaders,
-        email.nativeProperties,
-        email.folderId!,
-        email.omitted,
-      );
-      // Insertamos las direcciones de correo relacionadas y los adjuntos
-      emailEntity.setEmailAddressesRelated(email.to, email.cc, email.bcc, email.replyTo, accountId);
-      emailEntity.setAttachments(
+
+      const attachments = Email.createAttachments(
         email.attachments.map((a) => ({ ...a, emailId: emailEntity.id.value })) as Primitives<EmailAttachment>[],
       );
+
+      const [[fromAddress], toAddresses, ccAddresses, bccAddresses, replyToAddresses] = await Promise.all([
+        this.emailRepository.saveEmailAddresses([from]),
+        this.emailRepository.saveEmailAddresses(to),
+        this.emailRepository.saveEmailAddresses(cc),
+        this.emailRepository.saveEmailAddresses(bcc),
+        this.emailRepository.saveEmailAddresses(replyTo),
+      ]);
+
+      await this.emailRepository.saveEmailAttachments(attachments);
+
+      // Creamos la entidad de correo
+      const emailEntity = Email.Create(email, fromAddress.id.value);
 
       // Armamos la info actualizada del hilo
       const threadInfo = {
@@ -87,9 +74,9 @@ export class SyncEmails {
         participantIds: [
           ...new Set([
             fromAddress.id.value,
-            ...emailEntity.getEmailAddressesRelated().to.map((a) => a!.id.value),
-            ...emailEntity.getEmailAddressesRelated().to.map((a) => a!.id.value),
-            ...emailEntity.getEmailAddressesRelated().to.map((a) => a!.id.value),
+            ...toAddresses.map((a) => a!.id.value),
+            ...ccAddresses.map((a) => a!.id.value),
+            ...bccAddresses.map((a) => a!.id.value),
           ]),
         ],
       };
@@ -101,7 +88,13 @@ export class SyncEmails {
       } else {
         threads.push(threadInfo);
       }
-      emailPromises.push(this.emailRepository.save(emailEntity));
+
+      await this.emailRepository.save(emailEntity, {
+        to: toAddresses,
+        cc: ccAddresses,
+        bcc: bccAddresses,
+        replyTo: replyToAddresses,
+      });
     }
 
     // Guardamos los hilos y los correos

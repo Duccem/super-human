@@ -40,4 +40,8 @@ export class EmailAddress {
       new StringValueObject(accountId),
     );
   }
+
+  setId(id: string): void {
+    this.id = new Uuid(id);
+  }
 }

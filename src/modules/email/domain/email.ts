@@ -5,6 +5,7 @@ import { Primitives } from '@/modules/shared/domain/types/Primitives';
 import { EmailAddress } from './email-address';
 import { EmailAttachment } from './email-attachment';
 import { EmailSensitivity, EmailSensitivityValue } from './email-sensitivity';
+import { EmailMessage } from './email-service';
 import { EmailSysLabels } from './email-syslabels';
 
 export class Email extends Aggregate {
@@ -104,58 +105,33 @@ export class Email extends Aggregate {
     );
   }
 
-  static Create(
-    id: string,
-    threadId: string,
-    createdTime: string,
-    lastModifiedTime: string,
-    sentAt: string,
-    receivedAt: string,
-    internetMessageId: string,
-    subject: string,
-    sysLabels: Array<'junk' | 'trash' | 'sent' | 'inbox' | 'unread' | 'flagged' | 'important' | 'draft'>,
-    keywords: string[],
-    sysClassifications: Array<'personal' | 'social' | 'promotions' | 'updates' | 'forums'>,
-    sensitivity: EmailSensitivityValue,
-    meetingMessageMethod: 'request' | 'reply' | 'cancel' | 'counter' | 'other',
-    fromId: string,
-    hasAttachments: boolean,
-    body: string,
-    bodySnippet: string,
-    inReplyTo: string,
-    references: string,
-    threadIndex: string,
-    internetHeaders: any[],
-    nativeProperties: Record<string, any>,
-    folderId: string,
-    omitted: Array<'threadId' | 'body' | 'attachments' | 'recipients' | 'internetHeaders'>,
-  ): Email {
-    const emailSysLabels = new EmailSysLabels(sysLabels);
+  static Create(email: EmailMessage, from: string): Email {
+    const emailSysLabels = new EmailSysLabels(email.sysLabels);
     return new Email(
-      new Uuid(id),
-      new StringValueObject(threadId),
-      new DateValueObject(createdTime),
-      new DateValueObject(lastModifiedTime),
-      new DateValueObject(sentAt),
-      new DateValueObject(receivedAt),
-      new StringValueObject(internetMessageId),
-      new StringValueObject(subject),
+      new Uuid(email.id),
+      new StringValueObject(email.threadId),
+      new DateValueObject(email.createdTime),
+      new DateValueObject(email.lastModifiedTime),
+      new DateValueObject(email.sentAt),
+      new DateValueObject(email.receivedAt),
+      new StringValueObject(email.internetMessageId),
+      new StringValueObject(email.subject),
       emailSysLabels,
-      keywords.map((keyword) => new StringValueObject(keyword)),
-      sysClassifications.map((sysClassification) => new StringValueObject(sysClassification)),
-      new EmailSensitivity(sensitivity),
-      new StringValueObject(meetingMessageMethod),
-      new Uuid(fromId),
-      new BooleanValueObject(hasAttachments),
-      new StringValueObject(body),
-      new StringValueObject(bodySnippet),
-      new StringValueObject(inReplyTo),
-      new StringValueObject(references),
-      new StringValueObject(threadIndex),
-      internetHeaders,
-      nativeProperties,
-      new StringValueObject(folderId),
-      omitted.map((omitted) => new StringValueObject(omitted)),
+      email.keywords.map((keyword) => new StringValueObject(keyword)),
+      email.sysClassifications.map((sysClassification) => new StringValueObject(sysClassification)),
+      new EmailSensitivity(email.sensitivity as EmailSensitivityValue),
+      new StringValueObject(email.meetingMessageMethod!),
+      new Uuid(from),
+      new BooleanValueObject(email.hasAttachments),
+      new StringValueObject(email.body!),
+      new StringValueObject(email.bodySnippet!),
+      new StringValueObject(email.inReplyTo!),
+      new StringValueObject(email.references!),
+      new StringValueObject(email.threadIndex!),
+      email.internetHeaders,
+      email.nativeProperties,
+      new StringValueObject(email.folderId!),
+      email.omitted.map((omitted) => new StringValueObject(omitted)),
       emailSysLabels.getEmailLabelType(),
       DateValueObject.today(),
       DateValueObject.today(),
@@ -172,12 +148,7 @@ export class Email extends Aggregate {
     );
   }
 
-  private toAddresses: EmailAddress[] = [];
-  private ccAddresses: EmailAddress[] = [];
-  private bccAddresses: EmailAddress[] = [];
-  private replyToAddresses: EmailAddress[] = [];
-
-  setEmailAddressesRelated(
+  static setEmailAddressesRelated(
     to: Partial<Primitives<EmailAddress>>[],
     cc: Partial<Primitives<EmailAddress>>[],
     bcc: Partial<Primitives<EmailAddress>>[],
@@ -190,42 +161,35 @@ export class Email extends Aggregate {
       addressesToUpsert.set(address.address, address);
     }
 
-    this.toAddresses = to
+    const toAddresses = to
       .map((address) => addressesToUpsert.get(address.address))
       .filter(Boolean)
       .map((address) => EmailAddress.fromPrimitives(address));
 
-    this.ccAddresses = cc
+    const ccAddresses = cc
       .map((address) => addressesToUpsert.get(address.address))
       .filter(Boolean)
       .map((address) => EmailAddress.fromPrimitives(address));
 
-    this.bccAddresses = bcc
+    const bccAddresses = bcc
       .map((address) => addressesToUpsert.get(address.address))
       .filter(Boolean)
       .map((address) => EmailAddress.fromPrimitives(address));
 
-    this.replyToAddresses = replyTo
+    const replyToAddresses = replyTo
       .map((address) => addressesToUpsert.get(address.address))
       .filter(Boolean)
       .map((address) => EmailAddress.fromPrimitives(address));
-  }
-
-  getEmailAddressesRelated() {
     return {
-      to: this.toAddresses,
-      cc: this.ccAddresses,
-      bcc: this.bccAddresses,
-      replyTo: this.replyToAddresses,
+      to: toAddresses,
+      cc: ccAddresses,
+      bcc: bccAddresses,
+      replyTo: replyToAddresses,
     };
   }
 
-  private attachments: EmailAttachment[] = [];
-  setAttachments(attachments: Primitives<EmailAttachment>[]) {
-    this.attachments = attachments.map((attachment) => EmailAttachment.fromPrimitives(attachment));
-  }
-
-  getAttachments() {
-    return this.attachments;
+  static createAttachments(data: Primitives<EmailAttachment>[]) {
+    const attachments = data.map((attachment) => EmailAttachment.fromPrimitives(attachment));
+    return attachments;
   }
 }
