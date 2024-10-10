@@ -14,7 +14,7 @@ export class Thread extends Aggregate {
     public inboxStatus: BooleanValueObject,
     public draftStatus: BooleanValueObject,
     public sentStatus: BooleanValueObject,
-    public createdAt: DateValueObject,
+    createdAt: DateValueObject,
     updatedAt: DateValueObject,
   ) {
     super(id, createdAt, updatedAt);
