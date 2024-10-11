@@ -7,10 +7,11 @@ import { EmailAttachment } from './email-attachment';
 import { EmailSensitivity, EmailSensitivityValue } from './email-sensitivity';
 import { EmailMessage } from './email-service';
 import { EmailSysLabels } from './email-syslabels';
+import { Cuid } from '@/modules/shared/domain/core/value-objects/Cuid';
 
 export class Email extends Aggregate {
   constructor(
-    id: Uuid,
+    id: StringValueObject,
     public threadId: StringValueObject,
     public createdTime: DateValueObject,
     public lastModifiedTime: DateValueObject,
@@ -23,7 +24,7 @@ export class Email extends Aggregate {
     public sysClassifications: StringValueObject[],
     public sensitivity: EmailSensitivity,
     public meetingMessageMethod: StringValueObject,
-    public fromId: Uuid,
+    public fromId: StringValueObject,
     public hasAttachments: BooleanValueObject,
     public body: StringValueObject,
     public bodySnippet: StringValueObject,
@@ -75,7 +76,7 @@ export class Email extends Aggregate {
 
   static fromPrimitives(data: Primitives<Email>): Email {
     return new Email(
-      new Uuid(data.id),
+      new StringValueObject(data.id),
       new StringValueObject(data.threadId),
       new DateValueObject(data.createdTime),
       new DateValueObject(data.lastModifiedTime),
@@ -88,7 +89,7 @@ export class Email extends Aggregate {
       data.sysClassifications.map((sysClassification) => new StringValueObject(sysClassification)),
       new EmailSensitivity(data.sensitivity),
       new StringValueObject(data.meetingMessageMethod),
-      new Uuid(data.fromId),
+      new StringValueObject(data.fromId),
       new BooleanValueObject(data.hasAttachments),
       new StringValueObject(data.body),
       new StringValueObject(data.bodySnippet),
@@ -108,7 +109,7 @@ export class Email extends Aggregate {
   static Create(email: EmailMessage, from: string): Email {
     const emailSysLabels = new EmailSysLabels(email.sysLabels);
     return new Email(
-      new Uuid(email.id),
+      new StringValueObject(email.id),
       new StringValueObject(email.threadId),
       new DateValueObject(email.createdTime),
       new DateValueObject(email.lastModifiedTime),
@@ -121,7 +122,7 @@ export class Email extends Aggregate {
       email.sysClassifications.map((sysClassification) => new StringValueObject(sysClassification)),
       new EmailSensitivity(email.sensitivity as EmailSensitivityValue),
       new StringValueObject(email.meetingMessageMethod!),
-      new Uuid(from),
+      new StringValueObject(from),
       new BooleanValueObject(email.hasAttachments),
       new StringValueObject(email.body!),
       new StringValueObject(email.bodySnippet!),
@@ -140,7 +141,7 @@ export class Email extends Aggregate {
 
   static updateFromEmailAddress(name: string, address: string, raw: string, accountId: string) {
     return new EmailAddress(
-      Uuid.random(),
+      Cuid.random(),
       new StringValueObject(name),
       new StringValueObject(address),
       new StringValueObject(raw),

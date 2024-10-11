@@ -1,5 +1,5 @@
 import { Criteria, Operator } from '@/modules/shared/domain/core/Criteria';
 
-export const searchByExternalIdCriteria = (externalId: string) => {
-  return Criteria.fromValues([{ field: 'externalId', value: externalId, operator: Operator.EQUAL }]);
+export const searchByIdCriteria = (id: string) => {
+  return Criteria.fromValues([{ field: 'id', value: id, operator: Operator.EQUAL }]);
 };

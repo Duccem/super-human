@@ -5,8 +5,7 @@ import { Primitives } from '@/modules/shared/domain/types/Primitives';
 
 export class User extends Aggregate {
   constructor(
-    id: Uuid,
-    public externalId: StringValueObject,
+    id: StringValueObject,
     public emailAddress: StringValueObject,
     public firstName: StringValueObject,
     public lastName: StringValueObject,
@@ -20,7 +19,6 @@ export class User extends Aggregate {
   toPrimitives(): Primitives<User> {
     return {
       id: this.id.value,
-      externalId: this.externalId.value,
       emailAddress: this.emailAddress.value,
       firstName: this.firstName.value,
       lastName: this.lastName.value,
@@ -33,7 +31,6 @@ export class User extends Aggregate {
   static fromPrimitives(primitives: Primitives<User>): User {
     return new User(
       new Uuid(primitives.id),
-      new StringValueObject(primitives.externalId),
       new StringValueObject(primitives.emailAddress),
       new StringValueObject(primitives.firstName),
       new StringValueObject(primitives.lastName),
@@ -43,17 +40,9 @@ export class User extends Aggregate {
     );
   }
 
-  static Create(
-    id: string,
-    externalId: string,
-    emailAddress: string,
-    firstName: string,
-    lastName: string,
-    imageUrl: string,
-  ): User {
+  static Create(id: string, emailAddress: string, firstName: string, lastName: string, imageUrl: string): User {
     return new User(
-      new Uuid(id),
-      new StringValueObject(externalId),
+      new StringValueObject(id),
       new StringValueObject(emailAddress),
       new StringValueObject(firstName),
       new StringValueObject(lastName),

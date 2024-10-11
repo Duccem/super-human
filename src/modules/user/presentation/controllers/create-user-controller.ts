@@ -1,4 +1,3 @@
-import { Uuid } from '@/modules/shared/domain/core/value-objects/Uuid';
 import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers';
@@ -6,7 +5,7 @@ import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { Webhook } from 'svix';
 import { CreateUser } from '../../application/create-user';
-import { PrismaUserRepository } from '../../infrastructure/prisma-user-repositor';
+import { PrismaUserRepository } from '../../infrastructure/prisma-user-repository';
 
 export async function CreateUserController(req: NextRequest) {
   try {
@@ -21,7 +20,6 @@ export async function CreateUserController(req: NextRequest) {
     const data = evt.data;
     const createUser = new CreateUser(new PrismaUserRepository(db));
     await createUser.run(
-      Uuid.random().value,
       data.id,
       data.email_addresses[0].email_address || '',
       data.first_name || '',

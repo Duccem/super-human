@@ -1,11 +1,10 @@
 import { DomainEvent } from './DomainEvent';
-import { Uuid } from './value-objects/Uuid';
-import { DateValueObject } from './ValueObject';
+import { DateValueObject, StringValueObject } from './ValueObject';
 
 export abstract class Aggregate {
   private domainEvents: Array<DomainEvent>;
   constructor(
-    public id: Uuid,
+    public id: StringValueObject,
     public createdAt: DateValueObject,
     public updatedAt: DateValueObject,
   ) {

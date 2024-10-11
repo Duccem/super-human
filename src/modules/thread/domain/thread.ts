@@ -1,11 +1,10 @@
 import { Aggregate } from '@/modules/shared/domain/core/Aggregate';
-import { Uuid } from '@/modules/shared/domain/core/value-objects/Uuid';
 import { BooleanValueObject, DateValueObject, StringValueObject } from '@/modules/shared/domain/core/ValueObject';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
 
 export class Thread extends Aggregate {
   constructor(
-    id: Uuid,
+    id: StringValueObject,
     public subject: StringValueObject,
     public lastMessageDate: DateValueObject,
     public participantIds: StringValueObject[],
@@ -38,7 +37,7 @@ export class Thread extends Aggregate {
 
   static fromPrimitives(data: Primitives<Thread>): Thread {
     return new Thread(
-      new Uuid(data.id),
+      new StringValueObject(data.id),
       new StringValueObject(data.subject),
       new DateValueObject(data.lastMessageDate),
       data.participantIds.map((id) => new StringValueObject(id)),
@@ -64,7 +63,7 @@ export class Thread extends Aggregate {
     sentStatus: boolean,
   ) {
     const thread = new Thread(
-      new Uuid(id),
+      new StringValueObject(id),
       new StringValueObject(subject),
       new DateValueObject(lastMessageDate),
       participantIds.map((id) => new StringValueObject(id)),

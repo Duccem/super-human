@@ -1,11 +1,10 @@
-import { Uuid } from '@/modules/shared/domain/core/value-objects/Uuid';
 import { BooleanValueObject, NumberValueObject, StringValueObject } from '@/modules/shared/domain/core/ValueObject';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
 
 export class EmailAttachment {
   constructor(
-    public id: Uuid,
-    public emailId: Uuid,
+    public id: StringValueObject,
+    public emailId: StringValueObject,
     public name: StringValueObject,
     public mimeType: StringValueObject,
     public size: NumberValueObject,
@@ -31,8 +30,8 @@ export class EmailAttachment {
 
   static fromPrimitives(primitives: Primitives<EmailAttachment>): EmailAttachment {
     return new EmailAttachment(
-      new Uuid(primitives.id),
-      new Uuid(primitives.emailId),
+      new StringValueObject(primitives.id),
+      new StringValueObject(primitives.emailId),
       new StringValueObject(primitives.name),
       new StringValueObject(primitives.mimeType),
       new NumberValueObject(primitives.size),
@@ -55,8 +54,8 @@ export class EmailAttachment {
     contentLocation: string,
   ): EmailAttachment {
     return new EmailAttachment(
-      new Uuid(id),
-      new Uuid(emailId),
+      new StringValueObject(id),
+      new StringValueObject(emailId),
       new StringValueObject(name),
       new StringValueObject(mimeType),
       new NumberValueObject(size),

@@ -1,10 +1,10 @@
-import { Uuid } from '@/modules/shared/domain/core/value-objects/Uuid';
+import { Cuid } from '@/modules/shared/domain/core/value-objects/Cuid';
 import { StringValueObject } from '@/modules/shared/domain/core/ValueObject';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
 
 export class EmailAddress {
   constructor(
-    public id: Uuid,
+    public id: Cuid,
     public name: StringValueObject,
     public address: StringValueObject,
     public raw: StringValueObject,
@@ -23,7 +23,7 @@ export class EmailAddress {
 
   static fromPrimitives(primitives: Primitives<EmailAddress>): EmailAddress {
     return new EmailAddress(
-      new Uuid(primitives.id),
+      new Cuid(primitives.id),
       new StringValueObject(primitives.name),
       new StringValueObject(primitives.address),
       new StringValueObject(primitives.raw),
@@ -33,7 +33,7 @@ export class EmailAddress {
 
   static Create(id: string, name: string, address: string, raw: string, accountId: string): EmailAddress {
     return new EmailAddress(
-      new Uuid(id),
+      new Cuid(id),
       new StringValueObject(name),
       new StringValueObject(address),
       new StringValueObject(raw),
@@ -42,6 +42,6 @@ export class EmailAddress {
   }
 
   setId(id: string): void {
-    this.id = new Uuid(id);
+    this.id = new Cuid(id);
   }
 }
