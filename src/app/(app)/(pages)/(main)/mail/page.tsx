@@ -1,3 +1,5 @@
+import Mail from "@/app/(app)/components/mail/mail";
+
 export default function MailPage(){
-  return <div>DashboardPage</div>
+  return <Mail navCollapsedSize={4} defaultLayout={[20, 32, 48]} defaultCollapsed={false} />
 }

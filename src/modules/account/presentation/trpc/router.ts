@@ -1,21 +1,11 @@
-import { z } from 'zod';
-
-import { createTRPCRouter, publicProcedure } from '@/modules/shared/infrastructure/trpc/trpc';
+import { createTRPCRouter, protectedProcedure } from '@/modules/shared/infrastructure/trpc/trpc';
+import { ListMyAccounts } from '../../application/list-my-accounts';
+import { PrismaAccountRepository } from '../../infrastructure/prisma-account-repository';
 
 export const accountRouter = createTRPCRouter({
-  hello: publicProcedure.input(z.object({ text: z.string() })).query(({ input }) => {
-    return {
-      greeting: `Hello ${input.text}`,
-    };
-  }),
-
-  create: publicProcedure.input(z.object({ name: z.string().min(1) })).mutation(async ({ ctx, input }) => {
-    console.log(ctx, input);
-  }),
-
-  getLatest: publicProcedure.query(async ({ ctx }) => {
-    const account = await ctx.db.account.findFirst();
-
-    return account ?? null;
+  getMyAccounts: protectedProcedure.query(async ({ ctx }) => {
+    const useCase = new ListMyAccounts(new PrismaAccountRepository(ctx.db));
+    const accounts = await useCase.run(ctx.auth!.userId);
+    return accounts.map((account) => account.toPrimitives());
   }),
 });

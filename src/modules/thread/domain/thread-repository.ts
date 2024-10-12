@@ -5,4 +5,5 @@ export interface ThreadRepository {
   save(thread: Thread): Promise<void>;
   searchByCriteria(criteria: Criteria): Promise<Thread[]>;
   getByCriteria(criteria: Criteria): Promise<Thread | null>;
+  count(accountId: string, folder: string): Promise<number>;
 }

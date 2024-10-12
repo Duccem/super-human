@@ -33,4 +33,16 @@ export class PrismaThreadRepository implements ThreadRepository {
     if (!thread) return null;
     return Thread.fromPrimitives(thread as Primitives<Thread>);
   }
+
+  async count(accountId: string, folder: string): Promise<number> {
+    let folderFilter = {};
+    if (folder === 'inbox') {
+      folderFilter = { inboxStatus: true };
+    } else if (folder === 'sent') {
+      folderFilter = { sentStatus: true };
+    } else if (folder === 'drafts') {
+      folderFilter = { draftStatus: true };
+    }
+    return this.model.count({ where: { accountId, ...folderFilter } });
+  }
 }

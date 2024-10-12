@@ -3,10 +3,13 @@ import superjson from 'superjson';
 import { ZodError } from 'zod';
 
 import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
+import { auth } from '@clerk/nextjs/server';
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const user = auth();
   return {
     db,
+    auth: user,
     ...opts,
   };
 };
@@ -45,4 +48,13 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result;
 });
 
+const authMiddleware = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.auth?.userId) {
+    throw new Error('Unauthorized');
+  }
+
+  return next({ ctx: { ...ctx, auth: ctx.auth! as Required<typeof ctx.auth> } });
+});
+
 export const publicProcedure = t.procedure.use(timingMiddleware);
+export const protectedProcedure = t.procedure.use(timingMiddleware).use(authMiddleware);
