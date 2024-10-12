@@ -67,3 +67,24 @@ export class StringValueObject extends ValueObject<string> {
     return new StringValueObject('');
   }
 }
+
+export class OptionalString extends ValueObject<string | undefined> {
+  protected validation(value: string | undefined): void {
+    return;
+  }
+}
+
+export class OptionalDate extends ValueObject<Date | undefined> {
+  constructor(value: string | number | Date | undefined) {
+    super(
+      value
+        ? typeof value === 'string' && !value.includes('-')
+          ? new Date(Number(value))
+          : new Date(value)
+        : undefined,
+    );
+  }
+  protected validation(value: Date | undefined): void {
+    return;
+  }
+}

@@ -63,7 +63,7 @@ export class PrismaEmailRepository implements EmailRepository {
     for (const add of addresses) {
       const address = add.toPrimitives();
       const insertedAddress = await this.addresses.upsert({
-        where: { accountId_address: { accountId: address.accountId, address: address.address } },
+        where: { accountId_address: { accountId: address.accountId.toString(), address: address.address } },
         update: {
           name: address.name,
           raw: address.raw,
@@ -73,7 +73,7 @@ export class PrismaEmailRepository implements EmailRepository {
           name: address.name,
           address: address.address,
           raw: address.raw,
-          accountId: address.accountId,
+          accountId: address.accountId.toString(),
         },
       });
       insertedAddresses.push(insertedAddress);

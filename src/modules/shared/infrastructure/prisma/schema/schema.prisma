@@ -40,8 +40,10 @@ model Account {
     emailAddress String
     name String
 
-    user User @relation(fields: [userId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
+    user User @relation(fields: [userId], references: [id])
     threads        Thread[]
     emailAddresses EmailAddress[]
 
@@ -62,6 +64,9 @@ model Thread {
     draftStatus Boolean @default(false)
     sentStatus  Boolean @default(false)
 
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
     emails Email[]
 
     @@index([accountId])
@@ -79,7 +84,7 @@ model Email {
     threadId             String
     thread               Thread                @relation(fields: [threadId], references: [id])
     createdTime          DateTime
-    lastModifiedTime     DateTime
+    lastModifiedTime     DateTime?
     sentAt               DateTime
     receivedAt           DateTime
     internetMessageId    String
@@ -106,6 +111,9 @@ model Email {
     nativeProperties     Json?
     folderId             String?
     omitted              String[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     emailLabel EmailLabel @default(inbox)
 

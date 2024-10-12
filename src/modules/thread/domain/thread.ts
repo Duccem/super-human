@@ -25,7 +25,7 @@ export class Thread extends Aggregate {
       subject: this.subject.value,
       lastMessageDate: this.lastMessageDate.value,
       participantIds: this.participantIds.map((id) => id.value),
-      accountId: this.accountId.value,
+      accountId: this.accountId.value.toString(),
       done: this.done.value,
       inboxStatus: this.inboxStatus.value,
       draftStatus: this.draftStatus.value,

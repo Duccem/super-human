@@ -15,7 +15,7 @@ export class PrismaAccountRepository implements AccountRepository {
 
   async save(account: Account): Promise<void> {
     await this.model.upsert({
-      where: { id: account.id.value },
+      where: { id: account.id.value.toString() },
       create: account.toPrimitives(),
       update: account.toPrimitives(),
     });

@@ -1,6 +1,7 @@
 import { UpdateDeltaToken } from '@/modules/account/application/update-delta-token';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
 import { SaveThread } from '@/modules/thread/application/save-thread';
+import { Thread } from '@/modules/thread/domain/thread';
 import { Email } from '../domain/email';
 import { EmailAttachment } from '../domain/email-attachment';
 import { EmailRepository } from '../domain/email-repository';
@@ -15,6 +16,8 @@ export class SyncEmails {
   ) {}
 
   async run(syncUpdatedToken: string, accessToken: string, accountId: string): Promise<void> {
+    console.log('syncUpdatedToken', syncUpdatedToken);
+    console.log('accessToken', accessToken);
     let emailResponse = await this.emailService.getUpdatedEmails({ deltaToken: syncUpdatedToken }, accessToken);
     let emails = emailResponse.records;
     while (emailResponse.nextPageToken) {
@@ -28,7 +31,7 @@ export class SyncEmails {
 
   async saveEmails(records: EmailMessage[], accountId: string): Promise<void> {
     // preparamos para modificar los hilos y los correos
-    const threads: any[] = [];
+    const threads: { [key: string]: { emails: any[] } } = {};
     const emailPromises: any[] = [];
 
     //recorremos todos los emails para preparar la data
@@ -81,13 +84,7 @@ export class SyncEmails {
         ],
       };
 
-      // Buscamos si el hilo ya existe o lo insertamos sino
-      const threadIndex = threads.findIndex((t) => t.id === email.threadId);
-      if (threadIndex !== -1) {
-        threads[threadIndex] = threadInfo;
-      } else {
-        threads.push(threadInfo);
-      }
+      await this.saveThread.run(threadInfo as unknown as Primitives<Thread>, threadInfo.id);
 
       await this.emailRepository.save(emailEntity, {
         to: toAddresses,
@@ -95,11 +92,32 @@ export class SyncEmails {
         bcc: bccAddresses,
         replyTo: replyToAddresses,
       });
+      if (threads[email.threadId]) {
+        threads[email.threadId].emails.push(emailEntity.toPrimitives());
+      } else {
+        threads[email.threadId] = { emails: [emailEntity.toPrimitives()] };
+      }
     }
 
-    // Guardamos los hilos y los correos
-    const threadPromises = threads.map((t) => this.saveThread.run(t, t.id));
+    const threadPromises = [];
+    for (const threadId in threads) {
+      const thread = threads[threadId];
+      let threadFolderType = 'sent';
+      threadFolderType = thread.emails.some((email) => email.emailLabel === 'draft') ? 'draft' : threadFolderType;
+      threadFolderType = thread.emails.some((email) => email.emailLabel === 'inbox') ? 'inbox' : threadFolderType;
+
+      threadPromises.push(
+        this.saveThread.run(
+          {
+            id: threadId,
+            draftStatus: threadFolderType === 'draft',
+            inboxStatus: threadFolderType === 'inbox',
+            sentStatus: threadFolderType === 'sent',
+          } as unknown as Primitives<Thread>,
+          threadId,
+        ),
+      );
+    }
     await Promise.all(threadPromises);
-    await Promise.all(emailPromises);
   }
 }

@@ -1,20 +1,25 @@
 import { Aggregate } from '@/modules/shared/domain/core/Aggregate';
-import { Uuid } from '@/modules/shared/domain/core/value-objects/Uuid';
-import { BooleanValueObject, DateValueObject, StringValueObject } from '@/modules/shared/domain/core/ValueObject';
+import { Cuid } from '@/modules/shared/domain/core/value-objects/Cuid';
+import {
+  BooleanValueObject,
+  DateValueObject,
+  OptionalDate,
+  OptionalString,
+  StringValueObject,
+} from '@/modules/shared/domain/core/ValueObject';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
-import { EmailAddress } from './email-address';
+import { EmailAddress, EmailAddressName, EmailAddressRaw } from './email-address';
 import { EmailAttachment } from './email-attachment';
 import { EmailSensitivity, EmailSensitivityValue } from './email-sensitivity';
 import { EmailMessage } from './email-service';
 import { EmailSysLabels } from './email-syslabels';
-import { Cuid } from '@/modules/shared/domain/core/value-objects/Cuid';
 
 export class Email extends Aggregate {
   constructor(
     id: StringValueObject,
     public threadId: StringValueObject,
     public createdTime: DateValueObject,
-    public lastModifiedTime: DateValueObject,
+    public lastModifiedTime: OptionalDate,
     public sentAt: DateValueObject,
     public receivedAt: DateValueObject,
     public internetMessageId: StringValueObject,
@@ -23,17 +28,17 @@ export class Email extends Aggregate {
     public keywords: StringValueObject[],
     public sysClassifications: StringValueObject[],
     public sensitivity: EmailSensitivity,
-    public meetingMessageMethod: StringValueObject,
+    public meetingMessageMethod: OptionalString,
     public fromId: StringValueObject,
     public hasAttachments: BooleanValueObject,
-    public body: StringValueObject,
-    public bodySnippet: StringValueObject,
-    public inReplyTo: StringValueObject,
-    public references: StringValueObject,
-    public threadIndex: StringValueObject,
+    public body: OptionalString,
+    public bodySnippet: OptionalString,
+    public inReplyTo: OptionalString,
+    public references: OptionalString,
+    public threadIndex: OptionalString,
     public internetHeaders: any[],
     public nativeProperties: Record<string, any>,
-    public folderId: StringValueObject,
+    public folderId: OptionalString,
     public omitted: StringValueObject[],
     public emailLabel: StringValueObject,
     createdAt: DateValueObject,
@@ -75,11 +80,12 @@ export class Email extends Aggregate {
   }
 
   static fromPrimitives(data: Primitives<Email>): Email {
+    console.log(data);
     return new Email(
       new StringValueObject(data.id),
       new StringValueObject(data.threadId),
       new DateValueObject(data.createdTime),
-      new DateValueObject(data.lastModifiedTime),
+      new OptionalDate(data.lastModifiedTime),
       new DateValueObject(data.sentAt),
       new DateValueObject(data.receivedAt),
       new StringValueObject(data.internetMessageId),
@@ -88,17 +94,17 @@ export class Email extends Aggregate {
       data.keywords.map((keyword) => new StringValueObject(keyword)),
       data.sysClassifications.map((sysClassification) => new StringValueObject(sysClassification)),
       new EmailSensitivity(data.sensitivity),
-      new StringValueObject(data.meetingMessageMethod),
+      new OptionalString(data.meetingMessageMethod),
       new StringValueObject(data.fromId),
       new BooleanValueObject(data.hasAttachments),
-      new StringValueObject(data.body),
-      new StringValueObject(data.bodySnippet),
-      new StringValueObject(data.inReplyTo),
-      new StringValueObject(data.references),
-      new StringValueObject(data.threadIndex),
+      new OptionalString(data.body),
+      new OptionalString(data.bodySnippet),
+      new OptionalString(data.inReplyTo),
+      new OptionalString(data.references),
+      new OptionalString(data.threadIndex),
       data.internetHeaders,
       data.nativeProperties,
-      new StringValueObject(data.folderId),
+      new OptionalString(data.folderId),
       data.omitted.map((omitted) => new StringValueObject(omitted)),
       new StringValueObject(data.emailLabel),
       new DateValueObject(data.createdAt),
@@ -112,7 +118,7 @@ export class Email extends Aggregate {
       new StringValueObject(email.id),
       new StringValueObject(email.threadId),
       new DateValueObject(email.createdTime),
-      new DateValueObject(email.lastModifiedTime),
+      new OptionalDate(email.lastModifiedTime),
       new DateValueObject(email.sentAt),
       new DateValueObject(email.receivedAt),
       new StringValueObject(email.internetMessageId),
@@ -121,17 +127,17 @@ export class Email extends Aggregate {
       email.keywords.map((keyword) => new StringValueObject(keyword)),
       email.sysClassifications.map((sysClassification) => new StringValueObject(sysClassification)),
       new EmailSensitivity(email.sensitivity as EmailSensitivityValue),
-      new StringValueObject(email.meetingMessageMethod!),
+      new OptionalString(email.meetingMessageMethod!),
       new StringValueObject(from),
       new BooleanValueObject(email.hasAttachments),
-      new StringValueObject(email.body!),
-      new StringValueObject(email.bodySnippet!),
-      new StringValueObject(email.inReplyTo!),
-      new StringValueObject(email.references!),
-      new StringValueObject(email.threadIndex!),
+      new OptionalString(email.body!),
+      new OptionalString(email.bodySnippet!),
+      new OptionalString(email.inReplyTo!),
+      new OptionalString(email.references!),
+      new OptionalString(email.threadIndex!),
       email.internetHeaders,
       email.nativeProperties,
-      new StringValueObject(email.folderId!),
+      new OptionalString(email.folderId!),
       email.omitted.map((omitted) => new StringValueObject(omitted)),
       emailSysLabels.getEmailLabelType(),
       DateValueObject.today(),
@@ -142,10 +148,10 @@ export class Email extends Aggregate {
   static updateFromEmailAddress(name: string, address: string, raw: string, accountId: string) {
     return new EmailAddress(
       Cuid.random(),
-      new StringValueObject(name),
+      new EmailAddressName(name),
       new StringValueObject(address),
-      new StringValueObject(raw),
-      new Uuid(accountId),
+      new EmailAddressRaw(raw),
+      new StringValueObject(accountId),
     );
   }
 
@@ -165,22 +171,22 @@ export class Email extends Aggregate {
     const toAddresses = to
       .map((address) => addressesToUpsert.get(address.address))
       .filter(Boolean)
-      .map((address) => EmailAddress.fromPrimitives(address));
+      .map((address) => EmailAddress.fromPrimitives({ ...address, id: Cuid.random().toString() }));
 
     const ccAddresses = cc
       .map((address) => addressesToUpsert.get(address.address))
       .filter(Boolean)
-      .map((address) => EmailAddress.fromPrimitives(address));
+      .map((address) => EmailAddress.fromPrimitives({ ...address, id: Cuid.random().toString() }));
 
     const bccAddresses = bcc
       .map((address) => addressesToUpsert.get(address.address))
       .filter(Boolean)
-      .map((address) => EmailAddress.fromPrimitives(address));
+      .map((address) => EmailAddress.fromPrimitives({ ...address, id: Cuid.random().toString() }));
 
     const replyToAddresses = replyTo
       .map((address) => addressesToUpsert.get(address.address))
       .filter(Boolean)
-      .map((address) => EmailAddress.fromPrimitives(address));
+      .map((address) => EmailAddress.fromPrimitives({ ...address, id: Cuid.random().toString() }));
     return {
       to: toAddresses,
       cc: ccAddresses,

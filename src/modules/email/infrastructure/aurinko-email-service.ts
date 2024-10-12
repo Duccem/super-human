@@ -27,16 +27,17 @@ export class AurinkoEmailService implements EmailService {
     if (deltaToken) params.deltaToken = deltaToken;
     if (pageToken) params.pageToken = pageToken;
 
-    const response = await axios.post<SyncUpdatedResponse>(
-      'https://api.aurinko.io/v1/email/sync/updated',
-      {},
-      {
+    try {
+      const response = await axios.get<SyncUpdatedResponse>('https://api.aurinko.io/v1/email/sync/updated', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
         params,
-      },
-    );
-    return response.data;
+      });
+      return response.data;
+    } catch (error) {
+      console.log(JSON.stringify(error));
+      throw error;
+    }
   }
 }

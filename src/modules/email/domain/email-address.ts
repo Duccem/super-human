@@ -1,13 +1,13 @@
 import { Cuid } from '@/modules/shared/domain/core/value-objects/Cuid';
-import { StringValueObject } from '@/modules/shared/domain/core/ValueObject';
+import { StringValueObject, ValueObject } from '@/modules/shared/domain/core/ValueObject';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
 
 export class EmailAddress {
   constructor(
     public id: Cuid,
-    public name: StringValueObject,
+    public name: EmailAddressName,
     public address: StringValueObject,
-    public raw: StringValueObject,
+    public raw: EmailAddressRaw,
     public accountId: StringValueObject,
   ) {}
 
@@ -24,9 +24,9 @@ export class EmailAddress {
   static fromPrimitives(primitives: Primitives<EmailAddress>): EmailAddress {
     return new EmailAddress(
       new Cuid(primitives.id),
-      new StringValueObject(primitives.name),
+      new EmailAddressName(primitives.name),
       new StringValueObject(primitives.address),
-      new StringValueObject(primitives.raw),
+      new EmailAddressRaw(primitives.raw),
       new StringValueObject(primitives.accountId),
     );
   }
@@ -34,14 +34,26 @@ export class EmailAddress {
   static Create(id: string, name: string, address: string, raw: string, accountId: string): EmailAddress {
     return new EmailAddress(
       new Cuid(id),
-      new StringValueObject(name),
+      new EmailAddressName(name),
       new StringValueObject(address),
-      new StringValueObject(raw),
+      new EmailAddressRaw(raw),
       new StringValueObject(accountId),
     );
   }
 
   setId(id: string): void {
     this.id = new Cuid(id);
+  }
+}
+
+export class EmailAddressName extends ValueObject<string | undefined> {
+  protected validation(value: string | undefined): void {
+    return;
+  }
+}
+
+export class EmailAddressRaw extends ValueObject<string | undefined> {
+  protected validation(value: string): void {
+    return;
   }
 }

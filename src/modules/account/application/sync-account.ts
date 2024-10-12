@@ -13,7 +13,7 @@ export class SyncAccount {
   async run(code: string, userId: string): Promise<void> {
     const { accountId, accessToken } = await this.accountService.exchangeForAccessToken(code);
     const { email, name } = await this.accountService.getAccountDetails(accessToken);
-    const account = Account.Create(accountId, userId, '', accessToken, email, name);
+    const account = Account.Create(accountId.toString(), userId, '', accessToken, email, name);
     await this.accountRepository.save(account);
     await this.startSync.run(accessToken, accountId);
   }

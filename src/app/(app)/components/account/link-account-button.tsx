@@ -7,6 +7,7 @@ const LinkAccountButton = () => {
     <div>
       <Button onClick={async ()=>{
         const redirectUrl = await getAurinkoAuthUrl('Google');
+        console.log(redirectUrl);
         window.location.href = redirectUrl;
       }}>
         Link Account
