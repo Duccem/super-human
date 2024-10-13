@@ -7,6 +7,7 @@ import { cn } from '@/lib/shadcn/utils/utils';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import AccountSwitcher from '../account/account-switcher';
+import ThreadDisplay from '../thread/thread-display';
 import ThreadList from '../thread/thread-list';
 import SideBar from './side-bar';
 
@@ -75,7 +76,7 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[2]} minSize={30}>
-          Thread display
+          <ThreadDisplay />
         </ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>

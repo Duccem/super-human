@@ -66,5 +66,21 @@
 }
 
 .no-scroll::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+}
+
+.no-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 8px;
+}
+
+/* Cambiamos el fondo y agregamos una sombra cuando esté en hover */
+.no-scroll::-webkit-scrollbar-thumb:hover {
+  background: #b3b3b3;
+  box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.2);
+}
+
+/* Cambiamos el fondo cuando esté en active */
+.no-scroll::-webkit-scrollbar-thumb:active {
+  background-color: #999999;
 }
