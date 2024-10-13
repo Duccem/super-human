@@ -49,7 +49,6 @@ export class PrismaThreadRepository implements ThreadRepository {
 
   async searchByCriteriaWithEmails(criteria: Criteria): Promise<Thread[]> {
     const { orderBy, where, skip, take } = this.converter.criteria(criteria);
-    console.log(where);
     const threads = await this.model.findMany({
       where,
       orderBy,
