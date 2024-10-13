@@ -25,7 +25,7 @@ export function isAsc(direction: Direction): boolean {
 }
 
 export function isFilter(filter: any): filter is Filter {
-  return filter.field && filter.value && filter.operator;
+  return filter.field && filter.operator;
 }
 
 export interface CriteriaConverter {

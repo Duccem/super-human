@@ -14,10 +14,11 @@ export class PrismaThreadRepository implements ThreadRepository {
   }
 
   async save(thread: Thread): Promise<void> {
+    const { emails, ...threadData } = thread.toPrimitives();
     await this.model.upsert({
       where: { id: thread.id.value },
-      create: thread.toPrimitives(),
-      update: thread.toPrimitives(),
+      create: threadData,
+      update: threadData,
     });
   }
 
@@ -44,5 +45,26 @@ export class PrismaThreadRepository implements ThreadRepository {
       folderFilter = { draftStatus: true };
     }
     return this.model.count({ where: { accountId, ...folderFilter } });
+  }
+
+  async searchByCriteriaWithEmails(criteria: Criteria): Promise<Thread[]> {
+    const { orderBy, where, skip, take } = this.converter.criteria(criteria);
+    console.log(where);
+    const threads = await this.model.findMany({
+      where,
+      orderBy,
+      skip,
+      take,
+      include: {
+        emails: {
+          orderBy: { sentAt: 'desc' },
+          include: {
+            from: true,
+          },
+        },
+      },
+    });
+
+    return threads.map((thread) => Thread.fromPrimitives(thread as Primitives<Thread>));
   }
 }

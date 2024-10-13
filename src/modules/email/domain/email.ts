@@ -43,6 +43,7 @@ export class Email extends Aggregate {
     public emailLabel: StringValueObject,
     createdAt: DateValueObject,
     updatedAt: DateValueObject,
+    public from?: EmailAddress,
   ) {
     super(id, createdAt, updatedAt);
   }
@@ -76,11 +77,11 @@ export class Email extends Aggregate {
       emailLabel: this.emailLabel.value,
       createdAt: this.createdAt.value,
       updatedAt: this.updatedAt.value,
+      from: this.from ? this.from.toPrimitives() : undefined,
     };
   }
 
   static fromPrimitives(data: Primitives<Email>): Email {
-    console.log(data);
     return new Email(
       new StringValueObject(data.id),
       new StringValueObject(data.threadId),
@@ -109,6 +110,7 @@ export class Email extends Aggregate {
       new StringValueObject(data.emailLabel),
       new DateValueObject(data.createdAt),
       new DateValueObject(data.updatedAt),
+      data.from ? EmailAddress.fromPrimitives(data.from) : undefined,
     );
   }
 

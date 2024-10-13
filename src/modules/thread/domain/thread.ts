@@ -1,3 +1,4 @@
+import { Email } from '@/modules/email/domain/email';
 import { Aggregate } from '@/modules/shared/domain/core/Aggregate';
 import { BooleanValueObject, DateValueObject, StringValueObject } from '@/modules/shared/domain/core/ValueObject';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
@@ -15,6 +16,7 @@ export class Thread extends Aggregate {
     public sentStatus: BooleanValueObject,
     createdAt: DateValueObject,
     updatedAt: DateValueObject,
+    public emails?: Email[],
   ) {
     super(id, createdAt, updatedAt);
   }
@@ -32,6 +34,7 @@ export class Thread extends Aggregate {
       sentStatus: this.sentStatus.value,
       createdAt: this.createdAt.value,
       updatedAt: this.updatedAt.value,
+      emails: this.emails ? this.emails?.map((email) => email.toPrimitives()) : undefined,
     };
   }
 
@@ -48,6 +51,7 @@ export class Thread extends Aggregate {
       new BooleanValueObject(data.sentStatus),
       new DateValueObject(data.createdAt),
       new DateValueObject(data.updatedAt),
+      data.emails ? data.emails.map((email) => Email.fromPrimitives(email)) : undefined,
     );
   }
 

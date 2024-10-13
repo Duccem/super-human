@@ -1,12 +1,14 @@
-'use client'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/lib/shadcn/components/resizable";
-import { Separator } from "@/lib/shadcn/components/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/lib/shadcn/components/tabs";
-import { TooltipProvider } from "@/lib/shadcn/components/tooltip";
-import { cn } from "@/lib/shadcn/utils/utils";
-import { useState } from "react";
-import AccountSwitcher from "../account/account-switcher";
-import SideBar from "./side-bar";
+'use client';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/lib/shadcn/components/resizable';
+import { Separator } from '@/lib/shadcn/components/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/shadcn/components/tabs';
+import { TooltipProvider } from '@/lib/shadcn/components/tooltip';
+import { cn } from '@/lib/shadcn/utils/utils';
+import { useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
+import AccountSwitcher from '../account/account-switcher';
+import ThreadList from '../thread/thread-list';
+import SideBar from './side-bar';
 
 type MailProps = {
   defaultLayout: number[] | undefined;
@@ -16,31 +18,42 @@ type MailProps = {
 
 const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed = false }: MailProps) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  const [done, setDone] = useLocalStorage('ducenhuman-done', false)
   return (
     <TooltipProvider delayDuration={0}>
-      <ResizablePanelGroup className="items-stretch h-full min-h-screen" direction="horizontal" onLayout={(sizes: number[]) => {}}>
-        <ResizablePanel 
-          defaultSize={defaultLayout[0]} 
-          collapsedSize={navCollapsedSize} 
-          collapsible={true} 
-          minSize={15} 
-          maxSize={40} 
+      <ResizablePanelGroup
+        className="items-stretch h-full min-h-screen"
+        direction="horizontal"
+        onLayout={(sizes: number[]) => {}}
+      >
+        <ResizablePanel
+          defaultSize={defaultLayout[0]}
+          collapsedSize={navCollapsedSize}
+          collapsible={true}
+          minSize={15}
+          maxSize={40}
           onCollapse={() => setIsCollapsed(true)}
-          onResize={()=> setIsCollapsed(false)} 
-          className={cn( isCollapsed && 'min-w-[50px] transition-all duration-300 ease-in-out')}
+          onResize={() => setIsCollapsed(false)}
+          className={cn(isCollapsed && 'min-w-[50px] transition-all duration-300 ease-in-out')}
         >
           <div className="flex flex-col h-full flex-1">
-            <div className={cn("flex h-[52px] items-center justify-between", isCollapsed ? 'h-[52px]' : 'px-2')}>
+            <div className={cn('flex h-[52px] items-center justify-between', isCollapsed ? 'h-[52px]' : 'px-3')}>
               <AccountSwitcher isCollapsed={isCollapsed} />
             </div>
             <Separator />
-            <SideBar isCollapsed={isCollapsed}/>
+            <SideBar isCollapsed={isCollapsed} />
           </div>
         </ResizablePanel>
-        <ResizableHandle withHandle/>
+        <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-          <Tabs defaultValue="inbox">
-            <div className="flex items-center px-4 -y-2">
+          <Tabs defaultValue="inbox" value={done ? 'done' : 'inbox'} onValueChange={tab => {
+            if (tab === 'done') {
+              setDone(true)
+            } else {
+              setDone(false)
+            }
+          }}>
+            <div className="flex items-center px-4 py-2">
               <h1 className="text-xl font-bold">Inbox</h1>
               <TabsList className="ml-auto">
                 <TabsTrigger value="inbox" className="text-zinc-600 dar:text-zinc-200">
@@ -53,20 +66,20 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
             </div>
             <Separator />
             <TabsContent value="inbox">
-              Inbox
+              <ThreadList />
             </TabsContent>
             <TabsContent value="done">
-              Done
+              <ThreadList />
             </TabsContent>
           </Tabs>
         </ResizablePanel>
-        <ResizableHandle withHandle/>
+        <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[2]} minSize={30}>
           Thread display
         </ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>
   );
-}
+};
 
 export default Mail;
