@@ -17,4 +17,5 @@ export interface EmailRepository {
   saveEmailAttachments(attachments: EmailAttachment[]): Promise<void>;
   getByCriteria(criteria: Criteria): Promise<Email[]>;
   searchByCriteria(criteria: Criteria): Promise<Email[]>;
+  listAddresses(accountId: string): Promise<EmailAddress[]>;
 }

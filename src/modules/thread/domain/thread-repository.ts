@@ -6,5 +6,6 @@ export interface ThreadRepository {
   searchByCriteria(criteria: Criteria): Promise<Thread[]>;
   searchByCriteriaWithEmails(criteria: Criteria): Promise<Thread[]>;
   getByCriteria(criteria: Criteria): Promise<Thread | null>;
+  getByCriteriaWithEmails(id: string): Promise<Thread | null>;
   count(accountId: string, folder: string): Promise<number>;
 }

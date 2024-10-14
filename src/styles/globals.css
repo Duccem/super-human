@@ -84,3 +84,15 @@
 .no-scroll::-webkit-scrollbar-thumb:active {
   background-color: #999999;
 }
+
+.tiptap.ProseMirror {
+  outline: none;
+}
+.is-active {
+  background-color: #dadada;
+  border-radius: 4px;
+  padding: 0px 2px;
+}
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}

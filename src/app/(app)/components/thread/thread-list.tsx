@@ -42,6 +42,7 @@ const ThreadList = () => {
                     'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all relative',
                   )}
                   onClick={() => {
+                    console.log('setting id', item.id);
                     setThreadId(item.id);
                   }}
                 >

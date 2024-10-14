@@ -66,4 +66,22 @@ export class PrismaThreadRepository implements ThreadRepository {
 
     return threads.map((thread) => Thread.fromPrimitives(thread as Primitives<Thread>));
   }
+
+  async getByCriteriaWithEmails(id: string): Promise<Thread | null> {
+    const thread = await this.model.findUnique({
+      where: { id: id.toString() },
+      include: {
+        emails: {
+          orderBy: { sentAt: 'desc' },
+          include: {
+            from: true,
+            to: true,
+            cc: true,
+          },
+        },
+      },
+    });
+    if (!thread) return null;
+    return Thread.fromPrimitives(thread as Primitives<Thread>);
+  }
 }

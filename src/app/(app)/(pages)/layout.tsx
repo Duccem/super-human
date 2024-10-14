@@ -6,6 +6,7 @@ import { Nunito } from 'next/font/google';
 import { TRPCReactProvider } from '@/modules/shared/infrastructure/trpc/react';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 import KBar from '../components/kbar';
 
 const nunito = Nunito({ subsets: ['latin'] });
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <TRPCReactProvider>
               <KBar>{children}</KBar>
             </TRPCReactProvider>
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

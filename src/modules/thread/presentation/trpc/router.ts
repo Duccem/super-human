@@ -3,6 +3,7 @@ import { PrismaAccountRepository } from '@/modules/account/infrastructure/prisma
 import { createTRPCRouter, protectedProcedure } from '@/modules/shared/infrastructure/trpc/trpc';
 import { z } from 'zod';
 import { GetThreadCount } from '../../application/get-thread-count';
+import { GetThreadDetails } from '../../application/get-thread-details';
 import { ListThreads } from '../../application/list-threads';
 import { PrismaThreadRepository } from '../../infrastructure/prisma-thread-repository';
 
@@ -30,5 +31,13 @@ export const threadRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const useCase = new ListThreads(new PrismaThreadRepository(ctx.db));
       return useCase.run(input.accountId, input.folder, input.done);
+    }),
+  getThread: protectedProcedure
+    .input(z.object({ accountId: z.string(), threadId: z.string(), replyType: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const verifyOwnership = new VerifyOwnership(new PrismaAccountRepository(ctx.db));
+      const account = await verifyOwnership.run(input.accountId, ctx.auth.userId);
+      const useCase = new GetThreadDetails(new PrismaThreadRepository(ctx.db));
+      return useCase.run(account, input.threadId, input.replyType);
     }),
 });

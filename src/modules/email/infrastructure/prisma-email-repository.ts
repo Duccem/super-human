@@ -30,7 +30,7 @@ export class PrismaEmailRepository implements EmailRepository {
       replyTo: replyToAddresses,
     }: { to: EmailAddress[]; cc: EmailAddress[]; bcc: EmailAddress[]; replyTo: EmailAddress[] },
   ): Promise<void> {
-    const emailPrimitives = email.toPrimitives();
+    const { from, ...emailPrimitives } = email.toPrimitives();
     await this.model.upsert({
       where: { id: emailPrimitives.id },
       update: {
@@ -107,5 +107,12 @@ export class PrismaEmailRepository implements EmailRepository {
   }
   searchByCriteria(criteria: Criteria): Promise<Email[]> {
     throw new Error('Method not implemented.');
+  }
+
+  async listAddresses(accountId: string): Promise<EmailAddress[]> {
+    const addresses = await this.addresses.findMany({
+      where: { accountId },
+    });
+    return addresses.map((address) => EmailAddress.fromPrimitives(address as Primitives<EmailAddress>));
   }
 }

@@ -2,7 +2,7 @@ import { Criteria, Direction, Operator } from '@/modules/shared/domain/core/Crit
 
 export class ThreadCriteria {
   static searchById(threadId: string) {
-    return Criteria.fromValues([{ field: 'id', value: threadId, operator: Operator.EQUAL }]);
+    return Criteria.fromValues([{ field: 'id', value: threadId.toString(), operator: Operator.EQUAL }]);
   }
 
   static searchByFolder(accountId: string, folder: string, done: boolean) {

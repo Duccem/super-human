@@ -44,6 +44,8 @@ export class Email extends Aggregate {
     createdAt: DateValueObject,
     updatedAt: DateValueObject,
     public from?: EmailAddress,
+    public to?: EmailAddress[],
+    public cc?: EmailAddress[],
   ) {
     super(id, createdAt, updatedAt);
   }
@@ -78,6 +80,8 @@ export class Email extends Aggregate {
       createdAt: this.createdAt.value,
       updatedAt: this.updatedAt.value,
       from: this.from ? this.from.toPrimitives() : undefined,
+      to: this.to ? this.to.map((to) => to.toPrimitives()) : undefined,
+      cc: this.cc ? this.cc.map((cc) => cc.toPrimitives()) : undefined,
     };
   }
 
@@ -111,6 +115,8 @@ export class Email extends Aggregate {
       new DateValueObject(data.createdAt),
       new DateValueObject(data.updatedAt),
       data.from ? EmailAddress.fromPrimitives(data.from) : undefined,
+      data.to ? data.to.map((to) => EmailAddress.fromPrimitives(to)) : undefined,
+      data.cc ? data.cc.map((cc) => EmailAddress.fromPrimitives(cc)) : undefined,
     );
   }
 
