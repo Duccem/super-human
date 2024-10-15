@@ -10,7 +10,7 @@ import { Separator } from '@/lib/shadcn/components/separator';
 import { useThread } from '@/modules/thread/infrastructure/hooks/use-thread';
 import useThreads from '@/modules/thread/infrastructure/hooks/use-threads';
 import { format } from 'date-fns';
-import { Archive, ArchiveX, Clock, MoreVertical, Trash } from 'lucide-react';
+import { Archive, ArchiveX, Clock, MoreVertical, Trash, X } from 'lucide-react';
 import EmailDisplay from '../mail/email-display';
 import ReplyBox from '../mail/reply-box';
 
@@ -38,6 +38,12 @@ const ThreadDisplay = () => {
           </Button>
         </div>
         <div className="flex items-center gap-2 ml-auto">
+          {
+            threadId &&
+            (<Button variant={'ghost'} size={'icon'} disabled={!threadId} onClick={() => setThreadId('')}>
+              <X className="size-4" />
+            </Button>)
+          }
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant={'ghost'} size={'icon'} disabled={!threadId}>

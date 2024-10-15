@@ -3,13 +3,16 @@
 import { Button } from '@/lib/shadcn/components/button';
 import { Input } from '@/lib/shadcn/components/input';
 import { Separator } from '@/lib/shadcn/components/separator';
+import { autocompleteEmail } from '@/modules/email/presentation/actions/autocomplete-emails';
 import { api } from '@/modules/shared/infrastructure/trpc/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import Text from '@tiptap/extension-text';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { readStreamableValue } from 'ai/rsc';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
+import AiComposeButton from './ai-compose-button';
 import MenuBar from './menu-bar';
 import TagInput from './tag-input';
 
@@ -44,18 +47,22 @@ const EmailEditor = ({
   const [value, setValue] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [accountId] = useLocalStorage('accountId', '');
+  const [generation, setGeneration] = useState('');
   const [ref] = useAutoAnimate();
   const { data: suggestions } = api.email.listSuggestions.useQuery(
     { accountId: accountId, query: '' },
     { enabled: !!accountId },
   );
   const CustomText = Text.extend({
-    addKeyboardShortcuts: () => ({
-      'Meta-j': () => {
-        console.log('You pressed Meta + j');
-        return true;
-      },
-    }),
+    addKeyboardShortcuts() {
+      return {
+        'Shift-Alt-g': () => {
+          console.log('Generating email');
+          aiGenerate(this.editor.getText());
+          return true;
+        },
+      };
+    },
   });
   const editor = useEditor({
     autofocus: false,
@@ -64,6 +71,17 @@ const EmailEditor = ({
       setValue(editor.getHTML());
     },
   });
+
+  const aiGenerate = async (prompt: string) => {
+    const { output } = await autocompleteEmail(prompt);
+
+    for await (const delta of readStreamableValue(output)) {
+      if (delta) {
+        console.log(delta);
+        setGeneration(delta);
+      }
+    }
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -87,9 +105,14 @@ const EmailEditor = ({
     };
   }, [editor]);
 
+  useEffect(() => {
+    if (!generation || !editor) return;
+    editor.commands.insertContent(generation);
+  }, [generation, editor]);
+
   if (!editor) return null;
   return (
-    <div className=''>
+    <div className="">
       <div className="flex p-4 py-2 border-y">
         <MenuBar editor={editor} />
       </div>
@@ -124,6 +147,7 @@ const EmailEditor = ({
             <span className="text-green-600 font-medium">Draft </span>
             <span>to {to.join(', ')}</span>
           </div>
+          <AiComposeButton isComposing={defaultToolbarExpand} onGenerate={setGeneration} />
         </div>
       </div>
       <div className="prose w-full px-4 mb-2 py-3 overflow-y-scroll max-h-[150px] scroll-hidden">
@@ -139,8 +163,13 @@ const EmailEditor = ({
           for AI autocomplete
         </span>
         <Button
-           onClick={async () => { editor?.commands.clearContent(); await handleSend(value) }}
-        >Send</Button>
+          onClick={async () => {
+            editor?.commands.clearContent();
+            await handleSend(value);
+          }}
+        >
+          Send
+        </Button>
       </div>
     </div>
   );

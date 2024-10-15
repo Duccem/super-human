@@ -4,11 +4,14 @@ import { Separator } from '@/lib/shadcn/components/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/shadcn/components/tabs';
 import { TooltipProvider } from '@/lib/shadcn/components/tooltip';
 import { cn } from '@/lib/shadcn/utils/utils';
+import { UserButton } from '@clerk/nextjs';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import AccountSwitcher from '../account/account-switcher';
+import { ThemeToggle } from '../shared/theme-toggle';
 import ThreadDisplay from '../thread/thread-display';
 import ThreadList from '../thread/thread-list';
+import ComposeButton from './compose-button';
 import SideBar from './side-bar';
 
 type MailProps = {
@@ -19,7 +22,7 @@ type MailProps = {
 
 const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed = false }: MailProps) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const [done, setDone] = useLocalStorage('ducenhuman-done', false)
+  const [done, setDone] = useLocalStorage('ducenhuman-done', false);
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
@@ -43,17 +46,28 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
             </div>
             <Separator />
             <SideBar isCollapsed={isCollapsed} />
+            <div className="absolute bottom-4 left-4">
+              <div className={cn("flex items-center gap-2", { "flex-col-reverse": isCollapsed })}>
+                <UserButton />
+                <ThemeToggle />
+                <ComposeButton isCollapsed={isCollapsed} />
+              </div>
+            </div>
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-          <Tabs defaultValue="inbox" value={done ? 'done' : 'inbox'} onValueChange={tab => {
-            if (tab === 'done') {
-              setDone(true)
-            } else {
-              setDone(false)
-            }
-          }}>
+          <Tabs
+            defaultValue="inbox"
+            value={done ? 'done' : 'inbox'}
+            onValueChange={(tab) => {
+              if (tab === 'done') {
+                setDone(true);
+              } else {
+                setDone(false);
+              }
+            }}
+          >
             <div className="flex items-center px-4 py-2">
               <h1 className="text-xl font-bold">Inbox</h1>
               <TabsList className="ml-auto">
