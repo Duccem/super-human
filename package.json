@@ -21,6 +21,8 @@
     "@clerk/nextjs": "^5.7.1",
     "@formkit/auto-animate": "^0.8.2",
     "@huggingface/inference": "^2.8.1",
+    "@orama/orama": "^3.0.0-rc-4",
+    "@orama/plugin-data-persistence": "^3.0.0-rc-4",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^5.14.0",
     "@radix-ui/react-avatar": "^1.1.1",

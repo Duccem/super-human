@@ -1,3 +1,5 @@
+import { GetAccount } from '@/modules/account/application/get-account';
+import { SaveIndex } from '@/modules/account/application/save-index';
 import { UpdateDeltaToken } from '@/modules/account/application/update-delta-token';
 import { PrismaAccountRepository } from '@/modules/account/infrastructure/prisma-account-repository';
 import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
@@ -6,8 +8,10 @@ import { PrismaThreadRepository } from '@/modules/thread/infrastructure/prisma-t
 import { verifySignatureAppRouter } from '@upstash/qstash/dist/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { InitialSync } from '../../application/initial-sync';
+import { SaveVector } from '../../application/save-vector';
 import { SyncEmails } from '../../application/sync-emails';
 import { AurinkoEmailService } from '../../infrastructure/aurinko-email-service';
+import { OramaEmailSearcher } from '../../infrastructure/orama-email-searcher';
 import { PrismaEmailRepository } from '../../infrastructure/prisma-email-repository';
 
 export const StartSyncController = verifySignatureAppRouter(async (req: NextRequest) => {
@@ -21,12 +25,19 @@ export const StartSyncController = verifySignatureAppRouter(async (req: NextRequ
       return NextResponse.json({ error: 'Account not found' }, { status: 404 });
     }
     const emailService = new AurinkoEmailService();
+    const accountRepository = new PrismaAccountRepository(db);
     const useCase = new InitialSync(
       new SyncEmails(
         new PrismaEmailRepository(db),
         emailService,
-        new UpdateDeltaToken(new PrismaAccountRepository(db)),
+        new UpdateDeltaToken(accountRepository),
         new SaveThread(new PrismaThreadRepository(db)),
+        new SaveVector(
+          new PrismaEmailRepository(db),
+          new OramaEmailSearcher(),
+          new GetAccount(accountRepository),
+          new SaveIndex(accountRepository),
+        ),
       ),
       emailService,
     );

@@ -40,6 +40,8 @@ model Account {
     emailAddress String
     name String
 
+    binaryIndex Json?
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 

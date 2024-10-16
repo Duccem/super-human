@@ -21,6 +21,7 @@ export class PrismaCriteriaConverter {
       [Operator.LT, this.lessThan],
       [Operator.CONTAINS, this.like],
       [Operator.NOT_CONTAINS, this.notLike],
+      [Operator.IN, this.In],
     ]);
   }
 
@@ -107,6 +108,13 @@ export class PrismaCriteriaConverter {
         not: {
           contains: filter.value,
         },
+      },
+    };
+  }
+  protected In(filter: Filter) {
+    return {
+      [filter.field]: {
+        in: filter.value,
       },
     };
   }

@@ -6,6 +6,7 @@ import { Email } from '../domain/email';
 import { EmailAttachment } from '../domain/email-attachment';
 import { EmailRepository } from '../domain/email-repository';
 import { EmailMessage, EmailService } from '../domain/email-service';
+import { SaveVector } from './save-vector';
 
 export class SyncEmails {
   constructor(
@@ -13,6 +14,7 @@ export class SyncEmails {
     private readonly emailService: EmailService,
     private readonly updateDeltaToken: UpdateDeltaToken,
     private readonly saveThread: SaveThread,
+    private readonly saveVector: SaveVector,
   ) {}
 
   async run(syncUpdatedToken: string, accessToken: string, accountId: string): Promise<void> {
@@ -30,7 +32,7 @@ export class SyncEmails {
   async saveEmails(records: EmailMessage[], accountId: string): Promise<void> {
     // preparamos para modificar los hilos y los correos
     const threads: { [key: string]: { emails: any[] } } = {};
-
+    const emailIds = [];
     //recorremos todos los emails para preparar la data
     for (const email of records) {
       // Creamos la dirección de correo desde donde se manda el correo
@@ -60,7 +62,7 @@ export class SyncEmails {
 
       // Creamos la entidad de correo
       const emailEntity = Email.Create(email, fromAddress.id.value);
-
+      emailIds.push(emailEntity.id.value);
       // Armamos la info actualizada del hilo
       const threadInfo = {
         id: email.threadId,
@@ -116,5 +118,6 @@ export class SyncEmails {
       );
     }
     await Promise.all(threadPromises);
+    await this.saveVector.run(emailIds, accountId);
   }
 }

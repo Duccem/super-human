@@ -5,6 +5,7 @@ export enum Operator {
   LT = '<',
   CONTAINS = 'CONTAINS',
   NOT_CONTAINS = 'NOT_CONTAINS',
+  IN = 'IN',
 }
 export enum Direction {
   ASC = 'ASC',

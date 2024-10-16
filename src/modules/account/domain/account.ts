@@ -11,6 +11,7 @@ export class Account extends Aggregate {
     public accessToken: StringValueObject,
     public emailAddress: StringValueObject,
     public name: StringValueObject,
+    public binaryIndex: Record<string, string> | undefined = undefined,
     createdAt: DateValueObject,
     updatedAt: DateValueObject,
   ) {
@@ -25,6 +26,7 @@ export class Account extends Aggregate {
       accessToken: this.accessToken.value,
       emailAddress: this.emailAddress.value,
       name: this.name.value,
+      binaryIndex: this.binaryIndex,
       createdAt: this.createdAt.value,
       updatedAt: this.updatedAt.value,
     };
@@ -38,6 +40,7 @@ export class Account extends Aggregate {
       new StringValueObject(data.accessToken),
       new StringValueObject(data.emailAddress),
       new StringValueObject(data.name),
+      data.binaryIndex,
       new DateValueObject(data.createdAt),
       new DateValueObject(data.updatedAt),
     );
@@ -57,6 +60,7 @@ export class Account extends Aggregate {
       new StringValueObject(accessToken),
       new StringValueObject(emailAddress),
       new StringValueObject(name),
+      {},
       DateValueObject.today(),
       DateValueObject.today(),
     );

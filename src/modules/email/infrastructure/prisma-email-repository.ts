@@ -1,5 +1,6 @@
 import { Criteria } from '@/modules/shared/domain/core/Criteria';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
+import { PrismaCriteriaConverter } from '@/modules/shared/infrastructure/prisma/PrismaCriteriaConverter';
 import { PrismaClient } from '@prisma/client';
 import { Email } from '../domain/email';
 import { EmailAddress } from '../domain/email-address';
@@ -7,6 +8,7 @@ import { EmailAttachment } from '../domain/email-attachment';
 import { EmailRepository } from '../domain/email-repository';
 
 export class PrismaEmailRepository implements EmailRepository {
+  private converter = new PrismaCriteriaConverter();
   constructor(private readonly prisma: PrismaClient) {}
 
   get model() {
@@ -105,8 +107,16 @@ export class PrismaEmailRepository implements EmailRepository {
   getByCriteria(criteria: Criteria): Promise<Email[]> {
     throw new Error('Method not implemented.');
   }
-  searchByCriteria(criteria: Criteria): Promise<Email[]> {
-    throw new Error('Method not implemented.');
+  async searchByCriteria(criteria: Criteria): Promise<Email[]> {
+    const { where } = this.converter.criteria(criteria);
+    const emails = await this.model.findMany({
+      where,
+      include: {
+        to: true,
+        from: true,
+      },
+    });
+    return emails.map((email) => Email.fromPrimitives(email as Primitives<Email>));
   }
 
   async listAddresses(accountId: string): Promise<EmailAddress[]> {
