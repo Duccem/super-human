@@ -6,14 +6,18 @@ import { Primitives } from '@/modules/shared/domain/types/Primitives';
 import { Thread } from '@/modules/thread/domain/thread';
 import { useThread } from '@/modules/thread/infrastructure/hooks/use-thread';
 import useThreads from '@/modules/thread/infrastructure/hooks/use-threads';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { format, formatDistanceToNow } from 'date-fns';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import { ComponentProps, Fragment } from 'react';
+import useVim from '../kbar/hooks/use-vim';
 
 const ThreadList = () => {
   const { threads } = useThreads();
   const [threadId, setThreadId] = useThread();
+  const [parent] = useAutoAnimate(/* optional config */);
+  const { selectedThreadIds, visualMode } = useVim();
   const groupedThreads = threads?.reduce(
     (acc: any, thread) => {
       const date = format(thread.lastMessageDate ?? new Date(), 'yyyy-MM-dd');
@@ -27,7 +31,7 @@ const ThreadList = () => {
   );
   return (
     <div className="max-w-full overflow-y-scroll max-h-[calc(100vh-120px)] no-scroll">
-      <div className="flex flex-col gap-2 p-4 pt-0">
+      <div className="flex flex-col gap-2 p-4 pt-0" ref={parent}>
         {Object.entries(groupedThreads ?? {}).map(([date, threads]) => {
           return (
             <Fragment key={date}>
@@ -39,10 +43,12 @@ const ThreadList = () => {
                   id={`thread-${item.id}`}
                   key={item.id}
                   className={cn(
-                    'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all relative',
+                    "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all relative",
+                    visualMode &&
+                    selectedThreadIds.includes(item.id) &&
+                    "bg-blue-200 dark:bg-blue-900"
                   )}
                   onClick={() => {
-                    console.log('setting id', item.id);
                     setThreadId(item.id);
                   }}
                 >

@@ -22,6 +22,21 @@ export class PrismaThreadRepository implements ThreadRepository {
     });
   }
 
+  async toggleDone(value: boolean, threadId?: string, threadIds?: string[]): Promise<void> {
+    if (threadId) {
+      await this.model.update({
+        where: { id: threadId },
+        data: { done: value },
+      });
+    }
+    if (threadIds) {
+      await this.model.updateMany({
+        where: { id: { in: threadIds } },
+        data: { done: value },
+      });
+    }
+  }
+
   async searchByCriteria(criteria: Criteria): Promise<Thread[]> {
     const { orderBy, where, skip, take } = this.converter.criteria(criteria);
     const threads = await this.model.findMany({ where, orderBy, skip, take });

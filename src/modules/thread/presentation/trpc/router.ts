@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { GetThreadCount } from '../../application/get-thread-count';
 import { GetThreadDetails } from '../../application/get-thread-details';
 import { ListThreads } from '../../application/list-threads';
+import { SetDone } from '../../application/set-done';
+import { SetUndone } from '../../application/set-undone';
 import { PrismaThreadRepository } from '../../infrastructure/prisma-thread-repository';
 
 export const threadRouter = createTRPCRouter({
@@ -39,5 +41,33 @@ export const threadRouter = createTRPCRouter({
       const account = await verifyOwnership.run(input.accountId, ctx.auth.userId);
       const useCase = new GetThreadDetails(new PrismaThreadRepository(ctx.db));
       return useCase.run(account, input.threadId, input.replyType);
+    }),
+  setUndone: protectedProcedure
+    .input(
+      z.object({
+        accountId: z.string(),
+        threadId: z.string().optional(),
+        threadIds: z.array(z.string()).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const verifyOwnership = new VerifyOwnership(new PrismaAccountRepository(ctx.db));
+      await verifyOwnership.run(input.accountId, ctx.auth.userId);
+      const useCase = new SetUndone(new PrismaThreadRepository(ctx.db));
+      await useCase.run(input.threadId, input.threadIds);
+    }),
+  setDone: protectedProcedure
+    .input(
+      z.object({
+        accountId: z.string(),
+        threadId: z.string().optional(),
+        threadIds: z.array(z.string()).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const verifyOwnership = new VerifyOwnership(new PrismaAccountRepository(ctx.db));
+      await verifyOwnership.run(input.accountId, ctx.auth.userId);
+      const useCase = new SetDone(new PrismaThreadRepository(ctx.db));
+      await useCase.run(input.threadId, input.threadIds);
     }),
 });
