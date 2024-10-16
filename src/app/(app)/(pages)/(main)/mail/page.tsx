@@ -1,5 +1,8 @@
-import Mail from '@/app/(app)/components/mail/mail';
+
+import dynamic from 'next/dynamic';
 import { cookies } from 'next/headers';
+
+const Mail = dynamic(() => import('@/app/(app)/components/mail/mail'), { ssr: false });
 
 export default function MailPage() {
   const layout = cookies().get("react-resizable-panels:layout:mail")

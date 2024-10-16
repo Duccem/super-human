@@ -16,8 +16,6 @@ export class SyncEmails {
   ) {}
 
   async run(syncUpdatedToken: string, accessToken: string, accountId: string): Promise<void> {
-    console.log('syncUpdatedToken', syncUpdatedToken);
-    console.log('accessToken', accessToken);
     let emailResponse = await this.emailService.getUpdatedEmails({ deltaToken: syncUpdatedToken }, accessToken);
     let emails = emailResponse.records;
     while (emailResponse.nextPageToken) {
@@ -25,14 +23,13 @@ export class SyncEmails {
       emails = emails.concat(emailResponse.records);
     }
 
-    await this.updateDeltaToken.run(accountId, emailResponse.nextDeltaToken);
     await this.saveEmails(emails, accountId);
+    await this.updateDeltaToken.run(accountId, emailResponse.nextDeltaToken);
   }
 
   async saveEmails(records: EmailMessage[], accountId: string): Promise<void> {
     // preparamos para modificar los hilos y los correos
     const threads: { [key: string]: { emails: any[] } } = {};
-    const emailPromises: any[] = [];
 
     //recorremos todos los emails para preparar la data
     for (const email of records) {

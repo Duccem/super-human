@@ -92,4 +92,23 @@ export class AurinkoEmailService implements EmailService {
     );
     return response.data;
   }
+
+  async createSubscription(accessToken: string): Promise<void> {
+    const webhookUrl =
+      process.env.NODE_ENV === 'development' ? 'https://tv2v9c60-3000.use2.devtunnels.ms' : process.env.NEXT_PUBLIC_URL;
+    const res = await axios.post(
+      'https://api.aurinko.io/v1/subscriptions',
+      {
+        resource: '/email/messages',
+        notificationUrl: webhookUrl + '/api/aurinko/webhook',
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    return res.data;
+  }
 }

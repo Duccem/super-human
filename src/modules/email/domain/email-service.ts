@@ -83,4 +83,5 @@ export interface EmailService {
 
   startSync(accessToken: string): Promise<SyncResponse>;
   sendEmail(data: EmailPayload, accessToken: string): Promise<void>;
+  createSubscription(accessToken: string): Promise<void>;
 }

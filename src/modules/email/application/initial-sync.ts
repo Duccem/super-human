@@ -15,5 +15,6 @@ export class InitialSync {
     }
 
     await this.syncEmails.run(syncResponse.syncUpdatedToken, accessToken, accountId);
+    await this.emailService.createSubscription(accessToken);
   }
 }
