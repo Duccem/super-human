@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { EmailService, SyncResponse, SyncUpdatedResponse } from '../domain/email-service';
+import { EmailAddress, EmailService, SyncResponse, SyncUpdatedResponse } from '../domain/email-service';
 
 export class AurinkoEmailService implements EmailService {
   async startSync(accessToken: string): Promise<SyncResponse> {
@@ -39,5 +39,57 @@ export class AurinkoEmailService implements EmailService {
       console.log(JSON.stringify(error));
       throw error;
     }
+  }
+
+  async sendEmail(
+    {
+      from,
+      subject,
+      body,
+      inReplyTo,
+      references,
+      threadId,
+      to,
+      cc,
+      bcc,
+      replyTo,
+    }: {
+      from: EmailAddress;
+      subject: string;
+      body: string;
+      inReplyTo?: string;
+      references?: string;
+      threadId?: string;
+      to: EmailAddress[];
+      cc?: EmailAddress[];
+      bcc?: EmailAddress[];
+      replyTo?: EmailAddress;
+    },
+    accessToken: string,
+  ): Promise<void> {
+    const response = await axios.post(
+      'https://api.aurinko.io/v1/email/messages',
+      {
+        from,
+        subject,
+        body,
+        inReplyTo,
+        references,
+        threadId,
+        to,
+        cc,
+        bcc,
+        replyTo: [replyTo],
+      },
+      {
+        params: {
+          returnIds: true,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+    return response.data;
   }
 }

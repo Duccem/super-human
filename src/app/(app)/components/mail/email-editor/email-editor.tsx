@@ -3,6 +3,7 @@
 import { Button } from '@/lib/shadcn/components/button';
 import { Input } from '@/lib/shadcn/components/input';
 import { Separator } from '@/lib/shadcn/components/separator';
+import { cn } from '@/lib/shadcn/utils/utils';
 import { autocompleteEmail } from '@/modules/email/presentation/actions/autocomplete-emails';
 import { api } from '@/modules/shared/infrastructure/trpc/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
@@ -30,6 +31,7 @@ type EmailEditorProps = {
   onCcChange: (values: { label: string; value: string }[]) => void;
 
   defaultToolbarExpand?: boolean;
+  isComposing?: boolean;
 };
 
 const EmailEditor = ({
@@ -43,6 +45,7 @@ const EmailEditor = ({
   onToChange,
   onCcChange,
   defaultToolbarExpand,
+  isComposing,
 }: EmailEditorProps) => {
   const [value, setValue] = useState('');
   const [expanded, setExpanded] = useState(false);
@@ -112,48 +115,62 @@ const EmailEditor = ({
 
   if (!editor) return null;
   return (
-    <div className="">
-      <div className="flex p-4 py-2 border-y">
-        <MenuBar editor={editor} />
-      </div>
-      <div ref={ref} className="p-4 pb-0 space-y-2">
-        {expanded && (
-          <>
-            <TagInput
-              suggestions={suggestions?.map((s) => s.address!) || []}
-              value={toValues}
-              placeholder="Add tags"
-              label="To"
-              onChange={onToChange}
-            />
-            <TagInput
-              suggestions={suggestions?.map((s) => s.address) || []}
-              value={ccValues}
-              placeholder="Add tags"
-              label="Cc"
-              onChange={onCcChange}
-            />
-            <Input
-              id="subject"
-              className="w-full"
-              placeholder="Subject"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-            />
-          </>
-        )}
-        <div className="flex items-center gap-2">
-          <div className="cursor-pointer" onClick={() => setExpanded((e) => !e)}>
-            <span className="text-green-600 font-medium">Draft </span>
-            <span>to {to.join(', ')}</span>
-          </div>
-          <AiComposeButton isComposing={defaultToolbarExpand} onGenerate={setGeneration} />
+    <div
+      className={cn({
+        'flex flex-col h-full justify-between': isComposing,
+      })}
+    >
+      <div className='h-full'>
+        <div className="flex p-4 py-2 border-y">
+          <MenuBar editor={editor} />
         </div>
+        <div ref={ref} className="p-4 pb-0 space-y-2">
+          {expanded && (
+            <>
+              <TagInput
+                suggestions={suggestions?.map((s) => s.address!) || []}
+                value={toValues}
+                placeholder="Add tags"
+                label="To"
+                onChange={onToChange}
+              />
+              <TagInput
+                suggestions={suggestions?.map((s) => s.address) || []}
+                value={ccValues}
+                placeholder="Add tags"
+                label="Cc"
+                onChange={onCcChange}
+              />
+              <Input
+                id="subject"
+                className="w-full"
+                placeholder="Subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+              />
+            </>
+          )}
+          <div className="flex items-center gap-2">
+            <div className="cursor-pointer" onClick={() => setExpanded((e) => !e)}>
+              <span className="text-green-600 font-medium">Draft </span>
+              <span>to {to.join(', ')}</span>
+            </div>
+            <AiComposeButton isComposing={defaultToolbarExpand} onGenerate={setGeneration} />
+          </div>
+        </div>
+        <div
+          className={cn('prose w-full px-4 mb-2 py-3 overflow-y-scroll scroll-hidden', {
+            'h-full max-h-[500px]': isComposing,
+            'max-h-[150px]': !isComposing,
+          })}
+        >
+          <EditorContent editor={editor} value={value} placeholder="Write your email here..." style={{
+            minWidth: '100%',
+            minHeight: '100%',
+          }}/>
+        </div>
+        <Separator />
       </div>
-      <div className="prose w-full px-4 mb-2 py-3 overflow-y-scroll max-h-[150px] scroll-hidden">
-        <EditorContent editor={editor} value={value} placeholder="Write your email here..." />
-      </div>
-      <Separator />
       <div className="py-3 px-4 flex items-center justify-between ">
         <span className="text-sm">
           Tip: Press{' '}

@@ -1,10 +1,14 @@
-import { Email } from '../domain/email';
-import { EmailRepository } from '../domain/email-repository';
+import { GetAccount } from '@/modules/account/application/get-account';
+import { EmailPayload, EmailService } from '../domain/email-service';
 
 export class SendEmail {
-  constructor(private readonly emailRepository: EmailRepository) {}
+  constructor(
+    private getAccount: GetAccount,
+    private emailService: EmailService,
+  ) {}
 
-  async run(email: Email): Promise<void> {
-    await this.emailRepository.save(email, { bcc: [], cc: [], to: [], replyTo: [] });
+  async run(payload: EmailPayload & { accountId: string }): Promise<void> {
+    const account = await this.getAccount.run(payload.accountId);
+    await this.emailService.sendEmail(payload, account.accessToken);
   }
 }

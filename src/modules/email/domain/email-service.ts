@@ -62,6 +62,19 @@ export interface EmailHeader {
   value: string;
 }
 
+export interface EmailPayload {
+  from: EmailAddress;
+  subject: string;
+  body: string;
+  inReplyTo?: string;
+  references?: string;
+  threadId?: string;
+  to: EmailAddress[];
+  cc?: EmailAddress[];
+  bcc?: EmailAddress[];
+  replyTo?: EmailAddress;
+}
+
 export interface EmailService {
   getUpdatedEmails(
     { deltaToken, pageToken }: { deltaToken?: string; pageToken?: string },
@@ -69,4 +82,5 @@ export interface EmailService {
   ): Promise<SyncUpdatedResponse>;
 
   startSync(accessToken: string): Promise<SyncResponse>;
+  sendEmail(data: EmailPayload, accessToken: string): Promise<void>;
 }

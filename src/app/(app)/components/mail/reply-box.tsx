@@ -4,6 +4,7 @@ import { api } from '@/modules/shared/infrastructure/trpc/react';
 import { useThread } from '@/modules/thread/infrastructure/hooks/use-thread';
 import useThreads from '@/modules/thread/infrastructure/hooks/use-threads';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import EmailEditor from './email-editor/email-editor';
 
 const ReplyBox = () => {
@@ -32,7 +33,7 @@ const Component = ({ replyDetails }: { replyDetails: NonNullable<any> }) => {
     replyDetails.cc.map((cc: any) => ({ label: cc.address ?? cc.name, value: cc.address })) || [],
   );
 
-  //const sendEmail = api.email.sendEmail.useMutation();
+  const sendEmail = api.email.sendEmail.useMutation();
   useEffect(() => {
     if (!replyDetails || !threadId) return;
 
@@ -45,25 +46,24 @@ const Component = ({ replyDetails }: { replyDetails: NonNullable<any> }) => {
 
   const handleSend = async (value: string) => {
     if (!replyDetails) return;
-    // sendEmail.mutate(
-    //   {
-    //     accountId,
-    //     threadId: threadId ?? undefined,
-    //     body: value,
-    //     subject,
-    //     from: replyDetails.from,
-    //     to: replyDetails.to.map((to: any) => ({ name: to.name ?? to.address, address: to.address })),
-    //     cc: replyDetails.cc.map((cc: any) => ({ name: cc.name ?? cc.address, address: cc.address })),
-    //     replyTo: replyDetails.from,
-    //     inReplyTo: replyDetails.id,
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       toast.success('Email sent');
-    //       // editor?.commands.clearContent()
-    //     },
-    //   },
-    // );
+    sendEmail.mutate(
+      {
+        accountId,
+        threadId: threadId ?? undefined,
+        body: value,
+        subject,
+        from: replyDetails.from,
+        to: replyDetails.to.map((to: any) => ({ name: to.name ?? to.address, address: to.address })),
+        cc: replyDetails.cc.map((cc: any) => ({ name: cc.name ?? cc.address, address: cc.address })),
+        replyTo: replyDetails.from,
+        inReplyTo: replyDetails.id,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Email sent');
+        },
+      },
+    );
   };
 
   return (
@@ -80,7 +80,7 @@ const Component = ({ replyDetails }: { replyDetails: NonNullable<any> }) => {
       setSubject={setSubject}
       to={toValues.map((to) => to.value)}
       handleSend={handleSend}
-      isSending={false}
+      isSending={sendEmail.isPending}
     />
   );
 };

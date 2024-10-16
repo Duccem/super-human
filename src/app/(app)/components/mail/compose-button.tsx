@@ -7,6 +7,7 @@ import EmailEditor from './email-editor/email-editor';
 import { Button } from '@/lib/shadcn/components/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/lib/shadcn/components/sheet';
 import { api } from '@/modules/shared/infrastructure/trpc/react';
+import { toast } from 'sonner';
 import { useLocalStorage } from 'usehooks-ts';
 
 const ComposeButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
@@ -36,44 +37,47 @@ const ComposeButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
     };
   }, []);
 
-  //const sendEmail = api.mail.sendEmail.useMutation()
+  const sendEmail = api.email.sendEmail.useMutation();
 
   const handleSend = async (value: string) => {
     console.log(account);
     console.log({ value });
     if (!account) return;
-    // sendEmail.mutate({
-    //     accountId,
-    //     threadId: undefined,
-    //     body: value,
-    //     subject,
-    //     from: { name: account?.name ?? 'Me', address: account?.emailAddress ?? 'me@example.com' },
-    //     to: toValues.map(to => ({ name: to.value, address: to.value })),
-    //     cc: ccValues.map(cc => ({ name: cc.value, address: cc.value })),
-    //     replyTo: { name: account?.name ?? 'Me', address: account?.emailAddress ?? 'me@example.com' },
-    //     inReplyTo: undefined,
-    // }, {
-    //     onSuccess: () => {
-    //         toast.success("Email sent")
-    //         setOpen(false)
-    //     },
-    //     onError: (error) => {
-    //         console.log(error)
-    //         toast.error(error.message)
-    //     }
-    // })
+    sendEmail.mutate(
+      {
+        accountId,
+        threadId: undefined,
+        body: value,
+        subject,
+        from: { name: account?.name ?? 'Me', address: account?.emailAddress ?? 'me@example.com' },
+        to: toValues.map((to) => ({ name: to.value, address: to.value })),
+        cc: ccValues.map((cc) => ({ name: cc.value, address: cc.value })),
+        replyTo: { name: account?.name ?? 'Me', address: account?.emailAddress ?? 'me@example.com' },
+        inReplyTo: undefined,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Email sent');
+          setOpen(false);
+        },
+        onError: (error) => {
+          console.log(error);
+          toast.error(error.message);
+        },
+      },
+    );
   };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button className='flex justify-center items-center gap-2'>
+        <Button className="flex justify-center items-center gap-2">
           <Pencil className="size-4" />
-          { !isCollapsed ? 'Compose' : null}
+          {!isCollapsed ? 'Compose' : null}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-[40%] sm:max-w-full">
-        <SheetHeader>
+      <SheetContent className="w-[40%] sm:max-w-full h-full">
+        <SheetHeader className='h-full'>
           <SheetTitle>Compose Email</SheetTitle>
           <EmailEditor
             toValues={toValues}
@@ -90,6 +94,7 @@ const ComposeButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
             handleSend={handleSend}
             isSending={false}
             defaultToolbarExpand
+            isComposing
           />
         </SheetHeader>
       </SheetContent>

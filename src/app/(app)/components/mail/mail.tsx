@@ -28,7 +28,11 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
       <ResizablePanelGroup
         className="items-stretch h-full min-h-screen"
         direction="horizontal"
-        onLayout={(sizes: number[]) => {}}
+        onLayout={(sizes: number[]) => {
+          document.cookie = `react-resizable-panels:layout:mail=${JSON.stringify(
+            sizes
+          )}`
+        }}
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
@@ -36,8 +40,18 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
           collapsible={true}
           minSize={15}
           maxSize={40}
-          onCollapse={() => setIsCollapsed(true)}
-          onResize={() => setIsCollapsed(false)}
+          onCollapse={() => {
+            setIsCollapsed(true)
+            document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
+              true
+            )}`
+          }}
+          onResize={() => {
+            setIsCollapsed(false)
+            document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
+              false
+            )}`
+          }}
           className={cn(isCollapsed && 'min-w-[50px] transition-all duration-300 ease-in-out')}
         >
           <div className="flex flex-col h-full flex-1">

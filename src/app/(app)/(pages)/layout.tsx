@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={nunito.className}>
+      <html lang="en" className={nunito.className} suppressHydrationWarning={true}>
         <body suppressHydrationWarning={true}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <TRPCReactProvider>
