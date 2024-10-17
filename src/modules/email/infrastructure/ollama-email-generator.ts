@@ -1,6 +1,6 @@
-import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { createStreamableValue } from 'ai/rsc';
+import { ollama } from 'ollama-ai-provider';
 import { EmailGenerator } from '../domain/email-generator';
 
 export class AnthropicEmailGenerator implements EmailGenerator {
@@ -9,7 +9,7 @@ export class AnthropicEmailGenerator implements EmailGenerator {
 
     (async () => {
       const { textStream } = await streamText({
-        model: anthropic('claude-3-opus-20240229'),
+        model: ollama('llama3.2'),
         prompt: `
             You are an AI email assistant embedded in an email client app. Your purpose is to help the user compose emails by providing suggestions and relevant information based on the context of their previous emails.
             
@@ -49,7 +49,7 @@ export class AnthropicEmailGenerator implements EmailGenerator {
     const stream = createStreamableValue('');
     (async () => {
       const { textStream } = await streamText({
-        model: anthropic('claude-3-opus-20240229'),
+        model: ollama('llama3.2'),
         prompt: `
             ALWAYS RESPOND IN PLAIN TEXT, no html or markdown.
             You are a helpful AI embedded in a email client app that is used to autocomplete sentences, similar to google gmail autocomplete

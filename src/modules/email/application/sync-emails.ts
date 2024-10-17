@@ -33,6 +33,7 @@ export class SyncEmails {
     // preparamos para modificar los hilos y los correos
     const threads: { [key: string]: { emails: any[] } } = {};
     const emailIds = [];
+    let count = 1;
     //recorremos todos los emails para preparar la data
     for (const email of records) {
       // Creamos la dirección de correo desde donde se manda el correo
@@ -46,10 +47,6 @@ export class SyncEmails {
         accountId,
       );
 
-      const attachments = Email.createAttachments(
-        email.attachments.map((a) => ({ ...a, emailId: emailEntity.id.value })) as Primitives<EmailAttachment>[],
-      );
-
       const [[fromAddress], toAddresses, ccAddresses, bccAddresses, replyToAddresses] = await Promise.all([
         this.emailRepository.saveEmailAddresses([from]),
         this.emailRepository.saveEmailAddresses(to),
@@ -58,11 +55,13 @@ export class SyncEmails {
         this.emailRepository.saveEmailAddresses(replyTo),
       ]);
 
-      await this.emailRepository.saveEmailAttachments(attachments);
-
       // Creamos la entidad de correo
       const emailEntity = Email.Create(email, fromAddress.id.value);
-      emailIds.push(emailEntity.id.value);
+
+      const attachments = Email.createAttachments(
+        email.attachments.map((a) => ({ ...a, emailId: emailEntity.id.value })) as Primitives<EmailAttachment>[],
+      );
+
       // Armamos la info actualizada del hilo
       const threadInfo = {
         id: email.threadId,
@@ -91,11 +90,15 @@ export class SyncEmails {
         bcc: bccAddresses,
         replyTo: replyToAddresses,
       });
+      await this.emailRepository.saveEmailAttachments(attachments);
+
       if (threads[email.threadId]) {
         threads[email.threadId].emails.push(emailEntity.toPrimitives());
       } else {
         threads[email.threadId] = { emails: [emailEntity.toPrimitives()] };
       }
+
+      emailIds.push(emailEntity.id.value);
     }
 
     const threadPromises = [];

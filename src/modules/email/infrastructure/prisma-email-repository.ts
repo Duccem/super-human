@@ -99,7 +99,17 @@ export class PrismaEmailRepository implements EmailRepository {
           contentLocation: attachmentPrimitives.contentLocation,
           emailId: attachmentPrimitives.emailId,
         },
-        create: attachmentPrimitives,
+        create: {
+          id: attachmentPrimitives.id,
+          name: attachmentPrimitives.name,
+          mimeType: attachmentPrimitives.mimeType,
+          size: attachmentPrimitives.size,
+          inline: attachmentPrimitives.inline,
+          contentId: attachmentPrimitives.contentId,
+          content: attachmentPrimitives.content,
+          contentLocation: attachmentPrimitives.contentLocation,
+          emailId: attachmentPrimitives.emailId,
+        },
       });
       insertedAttachments.push(insertedAttachment);
     }

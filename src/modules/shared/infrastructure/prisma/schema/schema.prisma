@@ -162,8 +162,8 @@ model EmailAttachment {
     contentId       String?
     content         String?
     contentLocation String?
-    Email           Email   @relation(fields: [emailId], references: [id])
     emailId         String
+    Email           Email   @relation(fields: [emailId], references: [id])
 
     @@schema("human")
 }

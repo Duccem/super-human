@@ -100,7 +100,7 @@ export class AurinkoEmailService implements EmailService {
       'https://api.aurinko.io/v1/subscriptions',
       {
         resource: '/email/messages',
-        notificationUrl: webhookUrl + '/api/aurinko/webhook',
+        notificationUrl: webhookUrl + '/api/webhooks/aurinko/update',
       },
       {
         headers: {

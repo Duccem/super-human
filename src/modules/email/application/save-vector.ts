@@ -16,7 +16,7 @@ export class SaveVector {
   async run(emailIds: string[], accountId: string): Promise<void> {
     const emails = await this.emailRepository.searchByCriteria(EmailCriteria.inIds(emailIds));
     const account = await this.getAccount.run(accountId);
-    this.emailSearcher.initialize(account);
+    await this.emailSearcher.initialize(account);
     const saveInRepository = async (email: Email, accountId: string) => {
       await this.emailSearcher.insert(email);
       const index = this.emailSearcher.saveIndex();

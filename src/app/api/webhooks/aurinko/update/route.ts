@@ -1,8 +1,11 @@
 import { GetAccount } from '@/modules/account/application/get-account';
+import { SaveIndex } from '@/modules/account/application/save-index';
 import { UpdateDeltaToken } from '@/modules/account/application/update-delta-token';
 import { PrismaAccountRepository } from '@/modules/account/infrastructure/prisma-account-repository';
+import { SaveVector } from '@/modules/email/application/save-vector';
 import { SyncEmails } from '@/modules/email/application/sync-emails';
 import { AurinkoEmailService } from '@/modules/email/infrastructure/aurinko-email-service';
+import { OramaEmailSearcher } from '@/modules/email/infrastructure/orama-email-searcher';
 import { PrismaEmailRepository } from '@/modules/email/infrastructure/prisma-email-repository';
 import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
 import { SaveThread } from '@/modules/thread/application/save-thread';
@@ -55,11 +58,19 @@ export const POST = async (req: NextRequest) => {
   if (!account) {
     return new Response('Account not found', { status: 404 });
   }
+  const prismaEmailRepository = new PrismaEmailRepository(db);
+  const accountRepository = new PrismaAccountRepository(db);
   const syncEmails = new SyncEmails(
-    new PrismaEmailRepository(db),
+    prismaEmailRepository,
     new AurinkoEmailService(),
-    new UpdateDeltaToken(new PrismaAccountRepository(db)),
+    new UpdateDeltaToken(accountRepository),
     new SaveThread(new PrismaThreadRepository(db)),
+    new SaveVector(
+      prismaEmailRepository,
+      new OramaEmailSearcher(),
+      new GetAccount(accountRepository),
+      new SaveIndex(accountRepository),
+    ),
   );
 
   waitUntil(

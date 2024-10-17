@@ -12,6 +12,7 @@ import { ThemeToggle } from '../shared/theme-toggle';
 import ThreadDisplay from '../thread/thread-display';
 import ThreadList from '../thread/thread-list';
 import ComposeButton from './compose-button';
+import SearchBar from './search-bar';
 import SideBar from './side-bar';
 
 type MailProps = {
@@ -94,6 +95,7 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
               </TabsList>
             </div>
             <Separator />
+            <SearchBar />
             <TabsContent value="inbox">
               <ThreadList />
             </TabsContent>

@@ -1,4 +1,9 @@
-import { BooleanValueObject, NumberValueObject, StringValueObject } from '@/modules/shared/domain/core/ValueObject';
+import {
+  BooleanValueObject,
+  NumberValueObject,
+  OptionalString,
+  StringValueObject,
+} from '@/modules/shared/domain/core/ValueObject';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
 
 export class EmailAttachment {
@@ -9,9 +14,9 @@ export class EmailAttachment {
     public mimeType: StringValueObject,
     public size: NumberValueObject,
     public inline: BooleanValueObject,
-    public contentId: StringValueObject,
-    public content: StringValueObject,
-    public contentLocation: StringValueObject,
+    public contentId: OptionalString,
+    public content: OptionalString,
+    public contentLocation: OptionalString,
   ) {}
 
   public toPrimitives(): Primitives<EmailAttachment> {
@@ -36,9 +41,9 @@ export class EmailAttachment {
       new StringValueObject(primitives.mimeType),
       new NumberValueObject(primitives.size),
       new BooleanValueObject(primitives.inline),
-      new StringValueObject(primitives.contentId),
-      new StringValueObject(primitives.content),
-      new StringValueObject(primitives.contentLocation),
+      new OptionalString(primitives.contentId),
+      new OptionalString(primitives.content),
+      new OptionalString(primitives.contentLocation),
     );
   }
 
@@ -49,9 +54,9 @@ export class EmailAttachment {
     mimeType: string,
     size: number,
     inline: boolean,
-    contentId: string,
-    content: string,
-    contentLocation: string,
+    contentId?: string,
+    content?: string,
+    contentLocation?: string,
   ): EmailAttachment {
     return new EmailAttachment(
       new StringValueObject(id),
@@ -60,9 +65,9 @@ export class EmailAttachment {
       new StringValueObject(mimeType),
       new NumberValueObject(size),
       new BooleanValueObject(inline),
-      new StringValueObject(contentId),
-      new StringValueObject(content),
-      new StringValueObject(contentLocation),
+      new OptionalString(contentId),
+      new OptionalString(content),
+      new OptionalString(contentLocation),
     );
   }
 }

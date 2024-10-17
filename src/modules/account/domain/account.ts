@@ -60,7 +60,7 @@ export class Account extends Aggregate {
       new StringValueObject(accessToken),
       new StringValueObject(emailAddress),
       new StringValueObject(name),
-      {},
+      undefined,
       DateValueObject.today(),
       DateValueObject.today(),
     );
