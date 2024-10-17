@@ -3,7 +3,7 @@ import { createStreamableValue } from 'ai/rsc';
 import { ollama } from 'ollama-ai-provider';
 import { EmailGenerator } from '../domain/email-generator';
 
-export class AnthropicEmailGenerator implements EmailGenerator {
+export class OllamaEmailGenerator implements EmailGenerator {
   async generateEmail(context: string, prompt: string) {
     const stream = createStreamableValue('');
 
