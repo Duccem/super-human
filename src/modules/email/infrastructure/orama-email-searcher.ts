@@ -6,7 +6,7 @@ import { embed } from 'ai';
 import { ollama } from 'ollama-ai-provider';
 import TurndownService from 'turndown';
 import { Email } from '../domain/email';
-import { EmailSearcher } from '../domain/email-searcher';
+import { EmailDocument, EmailSearcher } from '../domain/email-searcher';
 
 export class OramaEmailSearcher implements EmailSearcher {
   private orama?: AnyOrama;
@@ -29,13 +29,13 @@ export class OramaEmailSearcher implements EmailSearcher {
     }
   }
 
-  async search(term: string): Promise<Email[]> {
+  async search(term: string): Promise<EmailDocument[]> {
     const results = await search(this.orama!, {
       term,
       limit: 10,
     });
     await this.saveIndex();
-    return results.hits.map((result) => Email.fromPrimitives(result.document as unknown as Primitives<Email>));
+    return results.hits.map((result) => result.document as unknown as EmailDocument);
   }
 
   async saveIndex() {
@@ -78,7 +78,7 @@ export class OramaEmailSearcher implements EmailSearcher {
       similarity: 0.8,
       limit: numResults,
     });
-    return results.hits.map((result) => Email.fromPrimitives(result.document as unknown as Primitives<Email>));
+    return results.hits.map((result) => result.document as unknown as EmailDocument);
   }
 
   async getEmbeddings(text: string) {

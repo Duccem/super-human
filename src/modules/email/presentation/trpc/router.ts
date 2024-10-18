@@ -4,7 +4,9 @@ import { createTRPCRouter, protectedProcedure } from '@/modules/shared/infrastru
 import { z } from 'zod';
 import { ListEmailsSuggestions } from '../../application/list-emails-suggestions';
 import { SendEmail } from '../../application/send-email';
+import { VectorSearch } from '../../application/vector-search';
 import { AurinkoEmailService } from '../../infrastructure/aurinko-email-service';
+import { OramaEmailSearcher } from '../../infrastructure/orama-email-searcher';
 import { PrismaEmailRepository } from '../../infrastructure/prisma-email-repository';
 
 const emailAddressSchema = z.object({
@@ -43,5 +45,18 @@ export const emailRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const useCase = new SendEmail(new GetAccount(new PrismaAccountRepository(ctx.db)), new AurinkoEmailService());
       await useCase.run(input);
+    }),
+  search: protectedProcedure
+    .input(
+      z.object({
+        accountId: z.string(),
+        query: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const getAccount = new GetAccount(new PrismaAccountRepository(ctx.db));
+      const owner = await getAccount.run(input.accountId);
+      const useCase = new VectorSearch(new OramaEmailSearcher());
+      return await useCase.run(input.query, owner);
     }),
 });
