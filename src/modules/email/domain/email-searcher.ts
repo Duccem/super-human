@@ -5,7 +5,7 @@ import { Email } from './email';
 export interface EmailSearcher {
   initialize(account: Primitives<Account>): Promise<void>;
   search(term: string): Promise<EmailDocument[]>;
-  vectorSearch(term: { prompt: string; numResults?: number }): Promise<EmailDocument[]>;
+  vectorSearch(term: { prompt: string; numResults?: number }): Promise<any>;
   saveIndex(): Promise<string | Buffer>;
   insert(email: Email): Promise<void>;
 }

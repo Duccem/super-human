@@ -78,7 +78,7 @@ export class OramaEmailSearcher implements EmailSearcher {
       similarity: 0.8,
       limit: numResults,
     });
-    return results.hits.map((result) => result.document as unknown as EmailDocument);
+    return results;
   }
 
   async getEmbeddings(text: string) {
