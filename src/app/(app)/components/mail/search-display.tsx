@@ -3,25 +3,24 @@ import { EmailDocument } from '@/modules/email/domain/email-searcher';
 import { api } from '@/modules/shared/infrastructure/trpc/react';
 import { useThread } from '@/modules/thread/infrastructure/hooks/use-thread';
 import DOMPurify from 'dompurify';
-import { useAtom } from 'jotai';
 import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useDebounceValue, useLocalStorage } from 'usehooks-ts';
-import { isSearchingAtom, searchValueAtom } from './search-bar';
+import { useSearchStore } from './search-value';
 
 const SearchDisplay = () => {
-  const [searchValue] = useAtom(searchValueAtom);
-  const [_, setIsSearching] = useAtom(isSearchingAtom);
-  const [__, setThreadId] = useThread();
+  const { searchValue,  setIsSearching } = useSearchStore();
+  const [_, setThreadId] = useThread()
   const search = api.email.search.useMutation();
+  
 
-  const [debouncedSearch] = useDebounceValue(searchValue, 500);
+  const [debouncedSearch] = useDebounceValue(searchValue, 500, { leading: true });
   const [accountId] = useLocalStorage('accountId', '');
+
 
   useEffect(() => {
     if (!debouncedSearch || !accountId) return;
-    console.log({ accountId, debouncedSearch });
     search.mutate({ accountId, query: debouncedSearch });
   }, [debouncedSearch, accountId]);
 

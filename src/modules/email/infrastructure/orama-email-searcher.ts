@@ -11,21 +11,25 @@ import { EmailDocument, EmailSearcher } from '../domain/email-searcher';
 export class OramaEmailSearcher implements EmailSearcher {
   private orama?: AnyOrama;
   async initialize(account: Primitives<Account>): Promise<void> {
-    if (account.binaryIndex) {
-      this.orama = await restore('json', account.binaryIndex as any);
-    } else {
-      this.orama = create({
-        schema: {
-          title: 'string',
-          body: 'string',
-          rawBody: 'string',
-          from: 'string',
-          to: 'string[]',
-          sentAt: 'string',
-          threadId: 'string',
-          embeddings: 'vector[768]',
-        },
-      });
+    try {
+      if (account.binaryIndex) {
+        this.orama = await restore('json', account.binaryIndex as any);
+      } else {
+        this.orama = create({
+          schema: {
+            title: 'string',
+            body: 'string',
+            rawBody: 'string',
+            from: 'string',
+            to: 'string[]',
+            sentAt: 'string',
+            threadId: 'string',
+            embeddings: 'vector[768]',
+          },
+        });
+      }
+    } catch (error) {
+      console.log('error initializing orama', error);
     }
   }
 

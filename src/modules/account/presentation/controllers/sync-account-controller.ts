@@ -2,15 +2,13 @@ import { InitialSync } from '@/modules/email/application/initial-sync';
 import { SaveVector } from '@/modules/email/application/save-vector';
 import { SyncEmails } from '@/modules/email/application/sync-emails';
 import { AurinkoEmailService } from '@/modules/email/infrastructure/aurinko-email-service';
-import { OramaEmailSearcher } from '@/modules/email/infrastructure/orama-email-searcher';
+import { MongoDBEmailSearcher } from '@/modules/email/infrastructure/mogodb-email-searcher';
 import { PrismaEmailRepository } from '@/modules/email/infrastructure/prisma-email-repository';
 import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
 import { SaveThread } from '@/modules/thread/application/save-thread';
 import { PrismaThreadRepository } from '@/modules/thread/infrastructure/prisma-thread-repository';
 import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { GetAccount } from '../../application/get-account';
-import { SaveIndex } from '../../application/save-index';
 import { SyncAccount } from '../../application/sync-account';
 import { UpdateDeltaToken } from '../../application/update-delta-token';
 import { AurinkoAccountService } from '../../infrastructure/aurinko-account-service';
@@ -41,12 +39,7 @@ export const syncAccountController = async (req: NextRequest) => {
           emailService,
           new UpdateDeltaToken(accountRepository),
           new SaveThread(new PrismaThreadRepository(db)),
-          new SaveVector(
-            new PrismaEmailRepository(db),
-            new OramaEmailSearcher(),
-            new GetAccount(accountRepository),
-            new SaveIndex(accountRepository),
-          ),
+          new SaveVector(new PrismaEmailRepository(db), new MongoDBEmailSearcher()),
         ),
         emailService,
       ),

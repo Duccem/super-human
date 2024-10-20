@@ -1,3 +1,4 @@
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/lib/shadcn/components/avatar';
 import { Button } from '@/lib/shadcn/components/button';
 import {
@@ -7,38 +8,93 @@ import {
   DropdownMenuTrigger,
 } from '@/lib/shadcn/components/dropdown-menu';
 import { Separator } from '@/lib/shadcn/components/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/lib/shadcn/components/tooltip';
 import { useThread } from '@/modules/thread/infrastructure/hooks/use-thread';
 import useThreads from '@/modules/thread/infrastructure/hooks/use-threads';
-import { format } from 'date-fns';
-import { useAtom } from 'jotai';
-import { Archive, ArchiveX, Clock, MoreVertical, Trash, X } from 'lucide-react';
+import { addDays, addHours, format, nextSaturday } from 'date-fns';
+import { Archive, ArchiveX, Calendar, Clock, MoreVertical, Trash2, X } from 'lucide-react';
 import EmailDisplay from '../mail/email-display';
 import ReplyBox from '../mail/reply-box';
-import { isSearchingAtom } from '../mail/search-bar';
+import SearchDisplay from '../mail/search-display';
+import { useSearchStore } from '../mail/search-value';
 
 const ThreadDisplay = () => {
   const [threadId, setThreadId] = useThread();
   const { threads, isFetching } = useThreads();
-  const [isSearching, setIsSearching] = useAtom(isSearchingAtom);
+  const { isSearching, searchValue } = useSearchStore();
   const today = new Date();
   const thread = threads?.find((t) => t.id === threadId);
   return (
     <div className="flex flex-col h-full overflow-scroll no-scroll">
       <div className="flex items-center p-2">
         <div className="flex items-center gap-2">
-          <Button variant={'ghost'} size={'icon'} disabled={!threadId}>
-            <Archive className="size-4" />
-          </Button>
-          <Button variant={'ghost'} size={'icon'} disabled={!threadId}>
-            <ArchiveX className="size-4" />
-          </Button>
-          <Button variant={'ghost'} size={'icon'} disabled={!threadId}>
-            <Trash className="size-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" disabled={!thread}>
+                <Archive className="w-4 h-4" />
+                <span className="sr-only">Archive</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Archive</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" disabled={!thread}>
+                <ArchiveX className="w-4 h-4" />
+                <span className="sr-only">Move to junk</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Move to junk</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" disabled={!thread}>
+                <Trash2 className="w-4 h-4" />
+                <span className="sr-only">Move to trash</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Move to trash</TooltipContent>
+          </Tooltip>
           <Separator orientation="vertical" className="ml-2" color="#000" />
-          <Button variant={'ghost'} size={'icon'} disabled={!threadId}>
-            <Clock className="size-4" />
-          </Button>
+          <Tooltip>
+            <Popover>
+              <PopoverTrigger asChild>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" disabled={!thread}>
+                    <Clock className="w-4 h-4" />
+                    <span className="sr-only">Snooze</span>
+                  </Button>
+                </TooltipTrigger>
+              </PopoverTrigger>
+              <PopoverContent className="flex w-[535px] p-0">
+                <div className="flex flex-col gap-2 px-2 py-4 border-r">
+                  <div className="px-4 text-sm font-medium">Snooze until</div>
+                  <div className="grid min-w-[250px] gap-1">
+                    <Button variant="ghost" className="justify-start font-normal">
+                      Later today{' '}
+                      <span className="ml-auto text-muted-foreground">{format(addHours(today, 4), 'E, h:m b')}</span>
+                    </Button>
+                    <Button variant="ghost" className="justify-start font-normal">
+                      Tomorrow
+                      <span className="ml-auto text-muted-foreground">{format(addDays(today, 1), 'E, h:m b')}</span>
+                    </Button>
+                    <Button variant="ghost" className="justify-start font-normal">
+                      This weekend
+                      <span className="ml-auto text-muted-foreground">{format(nextSaturday(today), 'E, h:m b')}</span>
+                    </Button>
+                    <Button variant="ghost" className="justify-start font-normal">
+                      Next week
+                      <span className="ml-auto text-muted-foreground">{format(addDays(today, 7), 'E, h:m b')}</span>
+                    </Button>
+                  </div>
+                </div>
+                <div className="p-2">
+                  <Calendar />
+                </div>
+              </PopoverContent>
+            </Popover>
+            <TooltipContent>Snooze</TooltipContent>
+          </Tooltip>
         </div>
         <div className="flex items-center gap-2 ml-auto">
           {threadId && (
@@ -64,7 +120,7 @@ const ThreadDisplay = () => {
       <Separator />
       {isSearching ? (
         <>
-          <div className="p-8 text-center text-muted-foreground">Searching...</div>
+          <SearchDisplay />
         </>
       ) : (
         <>

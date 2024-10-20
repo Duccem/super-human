@@ -6,8 +6,8 @@ import { ListEmailsSuggestions } from '../../application/list-emails-suggestions
 import { SendEmail } from '../../application/send-email';
 import { VectorSearch } from '../../application/vector-search';
 import { AurinkoEmailService } from '../../infrastructure/aurinko-email-service';
-import { OramaEmailSearcher } from '../../infrastructure/orama-email-searcher';
 import { PrismaEmailRepository } from '../../infrastructure/prisma-email-repository';
+import { MongoDBEmailSearcher } from '../../infrastructure/mogodb-email-searcher';
 
 const emailAddressSchema = z.object({
   name: z.string(),
@@ -56,7 +56,7 @@ export const emailRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const getAccount = new GetAccount(new PrismaAccountRepository(ctx.db));
       const owner = await getAccount.run(input.accountId);
-      const useCase = new VectorSearch(new OramaEmailSearcher());
+      const useCase = new VectorSearch(new MongoDBEmailSearcher());
       return await useCase.run(input.query, owner);
     }),
 });

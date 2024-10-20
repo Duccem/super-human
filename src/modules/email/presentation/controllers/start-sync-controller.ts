@@ -1,5 +1,3 @@
-import { GetAccount } from '@/modules/account/application/get-account';
-import { SaveIndex } from '@/modules/account/application/save-index';
 import { UpdateDeltaToken } from '@/modules/account/application/update-delta-token';
 import { PrismaAccountRepository } from '@/modules/account/infrastructure/prisma-account-repository';
 import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
@@ -11,8 +9,8 @@ import { InitialSync } from '../../application/initial-sync';
 import { SaveVector } from '../../application/save-vector';
 import { SyncEmails } from '../../application/sync-emails';
 import { AurinkoEmailService } from '../../infrastructure/aurinko-email-service';
-import { OramaEmailSearcher } from '../../infrastructure/orama-email-searcher';
 import { PrismaEmailRepository } from '../../infrastructure/prisma-email-repository';
+import { MongoDBEmailSearcher } from '../../infrastructure/mogodb-email-searcher';
 
 export const StartSyncController = verifySignatureAppRouter(async (req: NextRequest) => {
   try {
@@ -32,12 +30,7 @@ export const StartSyncController = verifySignatureAppRouter(async (req: NextRequ
         emailService,
         new UpdateDeltaToken(accountRepository),
         new SaveThread(new PrismaThreadRepository(db)),
-        new SaveVector(
-          new PrismaEmailRepository(db),
-          new OramaEmailSearcher(),
-          new GetAccount(accountRepository),
-          new SaveIndex(accountRepository),
-        ),
+        new SaveVector(new PrismaEmailRepository(db), new MongoDBEmailSearcher()),
       ),
       emailService,
     );

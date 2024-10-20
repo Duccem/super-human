@@ -1,11 +1,10 @@
 import { GetAccount } from '@/modules/account/application/get-account';
-import { SaveIndex } from '@/modules/account/application/save-index';
 import { UpdateDeltaToken } from '@/modules/account/application/update-delta-token';
 import { PrismaAccountRepository } from '@/modules/account/infrastructure/prisma-account-repository';
 import { SaveVector } from '@/modules/email/application/save-vector';
 import { SyncEmails } from '@/modules/email/application/sync-emails';
 import { AurinkoEmailService } from '@/modules/email/infrastructure/aurinko-email-service';
-import { OramaEmailSearcher } from '@/modules/email/infrastructure/orama-email-searcher';
+import { MongoDBEmailSearcher } from '@/modules/email/infrastructure/mogodb-email-searcher';
 import { PrismaEmailRepository } from '@/modules/email/infrastructure/prisma-email-repository';
 import { db } from '@/modules/shared/infrastructure/prisma/PrismaConnection';
 import { SaveThread } from '@/modules/thread/application/save-thread';
@@ -17,7 +16,6 @@ import { NextRequest } from 'next/server';
 const AURINKO_SIGNING_SECRET = process.env.AURINKO_SIGNING_SECRET;
 
 export const POST = async (req: NextRequest) => {
-  console.log('POST request received');
   const query = req.nextUrl.searchParams;
   const validationToken = query.get('validationToken');
   if (validationToken) {
@@ -52,7 +50,6 @@ export const POST = async (req: NextRequest) => {
   };
 
   const payload = JSON.parse(body) as AurinkoNotification;
-  console.log('Received notification:', JSON.stringify(payload, null, 2));
   const getAccount = new GetAccount(new PrismaAccountRepository(db));
   const account = await getAccount.run(payload.accountId.toString());
   if (!account) {
@@ -65,12 +62,7 @@ export const POST = async (req: NextRequest) => {
     new AurinkoEmailService(),
     new UpdateDeltaToken(accountRepository),
     new SaveThread(new PrismaThreadRepository(db)),
-    new SaveVector(
-      prismaEmailRepository,
-      new OramaEmailSearcher(),
-      new GetAccount(accountRepository),
-      new SaveIndex(accountRepository),
-    ),
+    new SaveVector(prismaEmailRepository, new MongoDBEmailSearcher()),
   );
 
   waitUntil(

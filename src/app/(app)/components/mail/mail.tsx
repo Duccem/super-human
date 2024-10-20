@@ -8,6 +8,7 @@ import { UserButton } from '@clerk/nextjs';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import AccountSwitcher from '../account/account-switcher';
+import AskAI from '../chat/ask-ai';
 import { ThemeToggle } from '../shared/theme-toggle';
 import ThreadDisplay from '../thread/thread-display';
 import ThreadList from '../thread/thread-list';
@@ -61,8 +62,10 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
             </div>
             <Separator />
             <SideBar isCollapsed={isCollapsed} />
-            <div className="absolute bottom-4 left-4">
-              <div className={cn("flex items-center gap-2", { "flex-col-reverse": isCollapsed })}>
+            <div className="flex-1"></div>
+            <AskAI isCollapsed={isCollapsed} />
+            <div className="w-full mb-5 pl-4">
+              <div className={cn("w-2/3 flex justify-start items-center gap-2", { "flex-col-reverse": isCollapsed })}>
                 <UserButton />
                 <ThemeToggle />
                 <ComposeButton isCollapsed={isCollapsed} />

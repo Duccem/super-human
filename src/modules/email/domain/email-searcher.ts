@@ -3,7 +3,7 @@ import { Primitives } from '@/modules/shared/domain/types/Primitives';
 import { Email } from './email';
 
 export interface EmailSearcher {
-  initialize(account: Primitives<Account>): Promise<void>;
+  initialize(account?: Primitives<Account>): Promise<void>;
   search(term: string): Promise<EmailDocument[]>;
   vectorSearch(term: { prompt: string; numResults?: number }): Promise<any>;
   saveIndex(): Promise<string | Buffer>;
@@ -11,6 +11,7 @@ export interface EmailSearcher {
 }
 
 export interface EmailDocument {
+  emailId: string;
   title: string;
   body: string;
   rawBody: string;

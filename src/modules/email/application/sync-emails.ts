@@ -121,6 +121,6 @@ export class SyncEmails {
       );
     }
     await Promise.all(threadPromises);
-    await this.saveVector.run(emailIds, accountId);
+    await this.saveVector.run(emailIds);
   }
 }

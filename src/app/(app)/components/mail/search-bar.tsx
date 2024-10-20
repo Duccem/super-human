@@ -2,22 +2,19 @@
 import { Input } from '@/lib/shadcn/components/input';
 import useThreads from '@/modules/thread/infrastructure/hooks/use-threads';
 import { motion } from 'framer-motion';
-import { atom, useAtom } from 'jotai';
 import { Loader2, Search, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-
-export const isSearchingAtom = atom(false);
-export const searchValueAtom = atom('');
+import { useSearchStore } from './search-value';
 
 const SearchBar = () => {
   const { isFetching } = useThreads();
-  const [searchValue, setSearchValue] = useAtom(searchValueAtom);
-  const [isSearching, setIsSearching] = useAtom(isSearchingAtom);
+  const { isSearching, searchValue, setIsSearching, setSearchValue  } = useSearchStore();
   const ref = useRef<HTMLInputElement>(null);
   const handleBlur = () => {
     if (!!searchValue) return;
     setIsSearching(false);
   };
+
   // add escape key to close
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
