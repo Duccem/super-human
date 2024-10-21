@@ -20,11 +20,13 @@ model User {
     lastName String
 
     imageUrl String?
+    subscriptionId String?             @unique
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     accounts Account[]
+    subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
     chatbotInteraction ChatbotInteraction?
 
     @@schema("human")
@@ -203,5 +205,22 @@ model ChatbotInteraction {
     @@unique([day, userId])
     @@index([day, userId])
 
+    @@schema("human")
+}
+
+model Subscription {
+    id        String   @id @default(cuid())
+
+    subscriptionId String? @unique
+    userId String? @unique
+    productId      String?
+    priceId        String?
+    customerId     String?
+    currentPeriodEnd DateTime
+
+    createdAt DateTime @default(now())
+    updatedAt        DateTime @updatedAt
+
+    user   User?
     @@schema("human")
 }

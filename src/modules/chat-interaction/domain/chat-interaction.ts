@@ -1,14 +1,14 @@
 import { Aggregate } from '@/modules/shared/domain/core/Aggregate';
-import { Cuid } from '@/modules/shared/domain/core/value-objects/Cuid';
 import { DateValueObject, NumberValueObject, StringValueObject } from '@/modules/shared/domain/core/ValueObject';
 import { Primitives } from '@/modules/shared/domain/types/Primitives';
+import { MaxInteractions } from './max-interactions';
 
 export class ChatInteraction extends Aggregate {
   constructor(
-    id: Cuid,
+    id: StringValueObject,
     public day: StringValueObject,
     public count: NumberValueObject,
-    public userId: Cuid,
+    public userId: StringValueObject,
     updatedAt: DateValueObject,
     createdAt: DateValueObject,
   ) {
@@ -28,10 +28,10 @@ export class ChatInteraction extends Aggregate {
 
   static fromPrimitives(plainData: Primitives<ChatInteraction>): ChatInteraction {
     return new ChatInteraction(
-      new Cuid(plainData.id),
+      new StringValueObject(plainData.id),
       new StringValueObject(plainData.day),
       new NumberValueObject(plainData.count),
-      new Cuid(plainData.userId),
+      new StringValueObject(plainData.userId),
       new DateValueObject(plainData.updatedAt),
       new DateValueObject(plainData.createdAt),
     );
@@ -39,10 +39,10 @@ export class ChatInteraction extends Aggregate {
 
   static Create(id: string, day: string, count: number, userId: string) {
     return new ChatInteraction(
-      new Cuid(id),
+      new StringValueObject(id),
       new StringValueObject(day),
       new NumberValueObject(count),
-      new Cuid(userId),
+      new StringValueObject(userId),
       DateValueObject.today(),
       DateValueObject.today(),
     );
@@ -53,6 +53,10 @@ export class ChatInteraction extends Aggregate {
   }
 
   isMaxCount() {
-    return this.count.value >= 3;
+    return this.count.value >= MaxInteractions.MAX_INTERACTIONS;
+  }
+
+  getRemainingInteractions() {
+    return MaxInteractions.MAX_INTERACTIONS - (this.count.value || 0);
   }
 }
